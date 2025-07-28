@@ -72,6 +72,16 @@ class Pet {
 
     async handlePetRegistration(form) {
         const formData = new FormData(form);
+
+        // Validate species and breed selection
+        if (formData.get('species') === "0") {
+            this.showErrorFront('Please select a species.');
+            return;
+        }
+        if (formData.get('breed') === "0") {
+            this.showErrorFront('Please select a breed.');
+            return;
+        }
         
         // Get selected conditions and vaccines
         const conditions = Array.from(document.getElementById('pet-conditions').selectedOptions)
@@ -344,6 +354,26 @@ class Pet {
         // Implement toast notifications here
     }
 
+    showErrorFront(message) {
+        // Remove existing error messages
+        this.clearErrors();
+        
+        // Create error element
+        const errorElement = document.createElement('div');
+        errorElement.className = 'form-error';
+        errorElement.textContent = message;
+        
+        // Insert at the top of modal body
+        const modalBody = document.querySelector('#pet-modal .modal-body');
+        modalBody.insertBefore(errorElement, modalBody.firstChild);
+    }
+
+    clearErrors() {
+        document.querySelectorAll('.form-error').forEach(error => {
+            error.remove();
+        });
+    }
+
     async loadVaccines() {
         try {
             const response = await fetch('/vaccines');
@@ -391,6 +421,10 @@ class Pet {
 
             const select = document.getElementById('pet-species');
             select.innerHTML = ''; // Clear existing options
+            const option = document.createElement('option');
+            option.value = "0";
+            option.textContent = 'Select Species';
+            select.appendChild(option);
 
             species.forEach(species => {
                 const option = document.createElement('option');
@@ -404,32 +438,44 @@ class Pet {
         }
     }
 
-    async setupBreedSelector() {
-    const speciesSelect = document.getElementById('pet-species');
+   async setupBreedSelector() {
+    const speciesSelect = document.getElementById('pet-species');   
+    const breedSelect = document.getElementById('pet-breed');
 
     speciesSelect.addEventListener('change', async () => {
         const speciesId = speciesSelect.value;
 
-        if (!speciesId) return;
+        // Clear previous breeds
+        breedSelect.innerHTML = '';
 
-        try {
+        if (!speciesId || speciesId === "0") {
+            // If no species selected, show default option
+            const option = document.createElement('option');
+            option.value = "0";
+            option.textContent = 'Select a species first';
+            breedSelect.appendChild(option);
+            return;
+        }
+
+        try { 
             const response = await fetch(`/breeds/${speciesId}`);
             const breeds = await response.json();
 
-            const select = document.getElementById('pet-breed');
-            select.innerHTML = ''; // Clear existing options
+            const defaultOption = document.createElement('option');
+            defaultOption.value = "0";
+            defaultOption.textContent = 'Select Breed';
+            breedSelect.appendChild(defaultOption);
 
             breeds.forEach(breed => {
                 const option = document.createElement('option');
                 option.value = breed.breed_id;
                 option.textContent = breed.name;
-                select.appendChild(option);
+                breedSelect.appendChild(option);
             });
         } catch (error) {
             console.error('Error fetching breeds:', error);
         }
-        });
-    }
+    });}
 
 
 }

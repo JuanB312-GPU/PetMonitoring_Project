@@ -124,7 +124,7 @@ def create_user(data: UserCreate, db: Session = Depends(get_db)):
 def login_user(data: UserLogin, db: Session = Depends(get_db)):
 
     # Validate email and password
-    user = BD_Queries.get_by_email(db, data.email)
+    user = BD_Queries.get_by_email(db, data.email) 
     if not user:
         raise HTTPException(status_code=400, detail="Email not registered")
     if not user.verify_password(data.password):

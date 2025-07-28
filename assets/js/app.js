@@ -45,7 +45,9 @@ class App {
     async loadUserPets() {
         try {
             const token = localStorage.getItem('authToken');
-            const response = await fetch('/api/pets', {
+
+            const userData = JSON.parse(localStorage.getItem('userData'));
+            const response = await fetch(`/api/pets?user_id=${userData.user_id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -54,6 +56,8 @@ class App {
             if (response.ok) {
                 const pets = await response.json();
                 this.renderUserPets(pets);
+            } else {
+                console.error('Failed to load pets');
             }
         } catch (error) {
             console.error('Error loading pets:', error);

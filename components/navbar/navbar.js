@@ -175,12 +175,28 @@ class Navbar {
             if (response.ok) {
                 this.pets = await response.json();
                 this.updatePetSelector();
+                this.renderUserPets(this.pets);
             } else {
                 console.error('Failed to load pets');
             }
         } catch (error) {
             console.error('Error loading pets:', error);
         }
+    }
+
+    renderUserPets(pets) {
+        const petsContainer = document.getElementById('pets-container');
+        const addPetBtn = document.getElementById('add-pet-btn');
+        
+        // Clear existing pet cards (except add pet button)
+        const existingCards = petsContainer.querySelectorAll('.pet-card');
+        existingCards.forEach(card => card.remove());
+        
+        // Add pet cards
+        pets.forEach(pet => {
+            const petCard = window.petComponent.createPetCard(pet);
+            petsContainer.insertBefore(petCard, addPetBtn);
+        });
     }
 
     updatePetSelector() {
