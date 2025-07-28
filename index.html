@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetCare Monitor</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="components/navbar/navbar.css">
+    <link rel="stylesheet" href="components/auth/auth.css">
+    <link rel="stylesheet" href="components/pet/pet.css">
+    <link rel="stylesheet" href="components/dashboard/dashboard.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Navbar Component -->
+        <nav id="navbar" class="navbar">
+            <div class="nav-container">
+                <div class="nav-brand" id="nav-brand" style="cursor:pointer;">
+                    <h2>PetCare Monitor</h2>
+                </div>
+                <div class="nav-menu" id="nav-menu">
+                    <a href="#" class="nav-link" data-page="dashboard">Dashboard</a>
+                    <a href="#" class="nav-link" data-page="pets">My Pets</a>
+                    <a href="#" class="nav-link" data-page="reports">Reports</a>
+                </div>
+                                <div class="nav-auth" id="nav-auth">
+                    <button class="btn btn-secondary" id="login-btn">Log-in</button>
+                    <button class="btn btn-primary" id="register-btn">Register</button>
+                </div>
+                <div class="nav-user hidden" id="nav-user">
+                    <select id="pet-selector" class="pet-selector">
+                        <option value="">Select a Pet</option>
+                    </select>
+                    <button class="btn btn-secondary" id="logout-btn">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main id="main-content" class="main-content">
+            <!-- Home Page -->
+            <div id="home-page" class="page active">
+                <div class="hero-section">
+                    <div class="container">
+                        <div id="guest-content" class="guest-content">
+                            <div class="hero-text">
+                                <h1>Welcome to PetCare Monitor</h1>
+                                <p>Keep track of your pet's health, monitor their progress, and generate detailed health reports with our comprehensive pet care management system.</p>
+                                <div class="features-grid">
+                                    <div class="feature-card">
+                                        <h3>Health Tracking</h3>
+                                        <p>Monitor your pet's vital health metrics including BMI, body condition, and caloric requirements.</p>
+                                    </div>
+                                    <div class="feature-card">
+                                        <h3>Progress History</h3>
+                                        <p>View detailed historical data and track your pet's health journey over time.</p>
+                                    </div>
+                                    <div class="feature-card">
+                                        <h3>Health Reports</h3>
+                                        <p>Generate comprehensive health reports for veterinary visits and personal records.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="user-content" class="user-content hidden">
+                            <div class="welcome-section">
+                                <h1 id="welcome-message">Welcome back!</h1>
+                                <div class="pets-container" id="pets-container">
+                                    <div class="add-pet-card" id="add-pet-btn">
+                                        <div class="add-pet-icon">+</div>
+                                        <h3>Add New Pet</h3>
+                                        <p>Register a new pet to start monitoring their health</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Page -->
+            <div id="dashboard-page" class="page">
+                <div class="container">
+                    <div class="dashboard-header">
+                        <h1>Pet Health Dashboard</h1>
+                        <div id="selected-pet-info" class="selected-pet-info"></div>
+                    </div>
+                    <div id="dashboard-content" class="dashboard-content">
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <h3>Body Mass Index (BMI)</h3>
+                                <div class="metric-value" id="bmi-value">-</div>
+                                <div class="metric-status" id="bmi-status">Select a pet to view metrics</div>
+                            </div>
+                            <div class="metric-card">
+                                <h3>Body Condition Score (BCS)</h3>
+                                <div class="metric-value" id="bcs-value">-</div>
+                                <div class="metric-status" id="bcs-status">Select a pet to view metrics</div>
+                            </div>
+                            <div class="metric-card">
+                                <h3>Daily Caloric Requirements (MER)</h3>
+                                <div class="metric-value" id="mer-value">-</div>
+                                <div class="metric-status" id="mer-status">Select a pet to view metrics</div>
+                            </div>
+                            <div class="metric-card">
+                                <h3>Disease Risk Assessment</h3>
+                                <div class="metric-value" id="risk-value">-</div>
+                                <div class="metric-status" id="risk-status">Select a pet to view metrics</div>
+                            </div>
+                        </div>
+                        <div class="dashboard-actions">
+                            <button class="btn btn-primary" id="view-history-btn">View Health History</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Pets Page -->
+            <div id="pets-page" class="page">
+                <div class="container">
+                    <div class="pets-header">
+                        <h1>My Pets</h1>
+                        <div id="pets-pet-info" class="selected-pet-info"></div>
+                    </div>
+                    <div id="pets-content" class="pets-content">
+                        <div class="pet-details-grid">
+                            <div class="detail-section">
+                                <h3>Basic Information</h3>
+                                <div id="basic-info" class="info-content">Select a pet to view details</div>
+                            </div>
+                            <div class="detail-section">
+                                <h3>Medical History</h3>
+                                <div id="medical-history" class="info-content">Select a pet to view medical history</div>
+                            </div>
+                            <div class="detail-section">
+                                <h3>Vaccination & Deworming</h3>
+                                <div id="vaccination-history" class="info-content">Select a pet to view vaccination history</div>
+                            </div>
+                            <div class="detail-section">
+                                <h3>Recent Activities</h3>
+                                <div id="activity-history" class="info-content">Select a pet to view activities</div>
+                            </div>
+                        </div>
+                        <div class="pets-actions">
+                            <button class="btn btn-primary" id="generate-report-btn">Generate Health Report</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Page -->
+            <div id="reports-page" class="page">
+                <div class="container">
+                    <div class="reports-header">
+                        <h1>Health Reports</h1>
+                    </div>
+                    <div id="reports-content" class="reports-content">
+                        <div class="reports-grid" id="reports-grid">
+                            <div class="empty-state">
+                                <h3>No Reports Generated</h3>
+                                <p>Generate health reports from the My Pets section to see them here.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Modals -->
+        <div id="auth-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modal-title">Login</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <!-- Login Form -->
+                    <form id="login-form" class="auth-form">
+                        <div class="form-group">
+                            <label for="login-email">Email</label>
+                            <input type="email" id="login-email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Password</label>
+                            <input type="password" id="login-password" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </form>
+
+                    <!-- Register Form -->
+                    <form id="register-form" class="auth-form hidden" >
+                        <div class="form-group">
+                            <label for="register-name">Name</label>
+                            <input type="text" id="register-name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-email">Email</label>
+                            <input type="email" id="register-email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-phone">Phone Number</label>
+                            <input type="tel" id="register-phone" name="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-password">Password</label>
+                            <input type="password" id="register-password" name="password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-confirm-password">Confirm Password</label>
+                            <input type="password" id="register-confirm-password" name="confirmPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pet Registration Modal -->
+        <div id="pet-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Pet Registration</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="pet-form" class="pet-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="pet-name">Name</label>
+                                <input type="text" id="pet-name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="pet-species">Species</label>
+                                <select id="pet-species" name="species" required>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="pet-breed">Breed</label>
+                                <select id="pet-breed" name="breed" required>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="pet-birthdate">Date of Birth</label>
+                                <input type="date" id="pet-birthdate" name="birthdate" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="pet-height">Height (cm)</label>
+                                <input type="number" id="pet-height" name="height" step="0.1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="pet-weight">Weight (kg)</label>
+                                <input type="number" id="pet-weight" name="weight" step="0.1" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="pet-conditions">Medical Conditions</label>
+                            <select id="pet-conditions" name="conditions" multiple>
+                            </select>
+                            <small>Hold Ctrl/Cmd to select multiple conditions</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="pet-vaccines">Vaccines</label>
+                            <select id="pet-vaccines" name="vaccines" multiple>
+                            </select>
+                            <small>Hold Ctrl/Cmd to select multiple vaccines</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Register Pet</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Modal -->
+        <div id="activity-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Add Activity</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="activity-form">
+                        <div class="form-group">
+                            <label for="activity-name">Activity Name</label>
+                            <input type="text" id="activity-name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="activity-frequency">Frequency</label>
+                            <select id="activity-frequency" name="frequency" required>
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="activity-duration">Duration (minutes)</label>
+                            <input type="number" id="activity-duration" name="duration" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Activity</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Food Modal -->
+        <div id="food-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Add Food</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="food-form">
+                        <div class="form-group">
+                            <label for="food-name">Food Name</label>
+                            <input type="text" id="food-name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="food-frequency">Frequency</label>
+                            <select id="food-frequency" name="frequency" required>
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="food-quantity">Quantity (grams)</label>
+                            <input type="number" id="food-quantity" name="quantity" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Food</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="components/navbar/navbar.js"></script>
+    <script src="components/auth/auth.js"></script>
+    <script src="components/pet/pet.js"></script>
+    <script src="components/dashboard/dashboard.js"></script>
+    <script src="components/reports/reports.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>

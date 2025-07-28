@@ -1,0 +1,219 @@
+/* Dashboard Styles */
+.dashboard-header {
+    text-align: center;
+    margin-bottom: calc(var(--spacing-unit) * 6);
+}
+
+.selected-pet-info {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: white;
+    padding: calc(var(--spacing-unit) * 3);
+    border-radius: var(--radius);
+    margin-top: calc(var(--spacing-unit) * 3);
+    text-align: center;
+}
+
+.selected-pet-info h3 {
+    margin-bottom: calc(var(--spacing-unit) * 1);
+    font-size: 1.5rem;
+}
+
+.selected-pet-info p {
+    margin: 0;
+    opacity: 0.9;
+    color: white;
+}
+
+.dashboard-content {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: calc(var(--spacing-unit) * 4);
+    margin-bottom: calc(var(--spacing-unit) * 6);
+}
+
+.metric-card {
+    background: var(--surface-color);
+    padding: calc(var(--spacing-unit) * 4);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.metric-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: calc(var(--spacing-unit) * 2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: calc(var(--spacing-unit) * 1);
+    line-height: 1;
+}
+
+.metric-status {
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: calc(var(--spacing-unit) * 1) calc(var(--spacing-unit) * 2);
+    border-radius: calc(var(--radius) * 2);
+    display: inline-block;
+}
+
+.metric-status.normal {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: var(--success-color);
+}
+
+.metric-status.warning {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: var(--warning-color);
+}
+
+.metric-status.danger {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--error-color);
+}
+
+.metric-status.info {
+    background-color: rgba(37, 99, 235, 0.1);
+    color: var(--primary-color);
+}
+
+.dashboard-actions {
+    text-align: center;
+}
+
+.dashboard-actions .btn {
+    min-width: 200px;
+}
+
+/* Empty state */
+.dashboard-empty {
+    text-align: center;
+    padding: calc(var(--spacing-unit) * 8) calc(var(--spacing-unit) * 4);
+    color: var(--text-secondary);
+}
+
+.dashboard-empty h3 {
+    margin-bottom: calc(var(--spacing-unit) * 2);
+    color: var(--text-primary);
+}
+
+/* Pets Page Styles */
+.pets-header {
+    text-align: center;
+    margin-bottom: calc(var(--spacing-unit) * 6);
+}
+
+.pets-content {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.pet-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: calc(var(--spacing-unit) * 4);
+    margin-bottom: calc(var(--spacing-unit) * 6);
+}
+
+.detail-section {
+    background: var(--surface-color);
+    padding: calc(var(--spacing-unit) * 4);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.detail-section h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: calc(var(--spacing-unit) * 3);
+    padding-bottom: calc(var(--spacing-unit) * 1);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.info-content {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: calc(var(--spacing-unit) * 1.5) 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.info-value {
+    color: var(--text-secondary);
+}
+
+.pets-actions {
+    text-align: center;
+}
+
+.pets-actions .btn {
+    min-width: 200px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .metrics-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: calc(var(--spacing-unit) * 3);
+    }
+    
+    .metric-value {
+        font-size: 2rem;
+    }
+    
+    .pet-details-grid {
+        grid-template-columns: 1fr;
+        gap: calc(var(--spacing-unit) * 3);
+    }
+}
+
+@media (max-width: 480px) {
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .metric-value {
+        font-size: 1.75rem;
+    }
+    
+    .selected-pet-info {
+        padding: calc(var(--spacing-unit) * 2);
+    }
+    
+    .selected-pet-info h3 {
+        font-size: 1.25rem;
+    }
+}

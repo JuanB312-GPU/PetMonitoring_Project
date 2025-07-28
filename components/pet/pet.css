@@ -1,0 +1,125 @@
+/* Pet Component Styles */
+.pet-form {
+    width: 100%;
+}
+
+.pet-form .form-group {
+    margin-bottom: calc(var(--spacing-unit) * 2.5);
+}
+
+.pet-form .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: calc(var(--spacing-unit) * 2);
+    margin-bottom: calc(var(--spacing-unit) * 2.5);
+}
+
+.pet-form input,
+.pet-form select {
+    height: 44px;
+    font-size: 0.875rem;
+}
+
+.pet-form select[multiple] {
+    height: 120px;
+    padding: calc(var(--spacing-unit) * 1);
+}
+
+.pet-form .btn {
+    width: 100%;
+    margin-top: calc(var(--spacing-unit) * 2);
+}
+
+/* Pet Card Specific Styles */
+.pet-card-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: calc(var(--spacing-unit) * 1);
+}
+
+.pet-card-species {
+    font-size: 0.875rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+.pet-conditions,
+.pet-vaccines {
+    margin-top: calc(var(--spacing-unit) * 2);
+}
+
+.pet-conditions h4,
+.pet-vaccines h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: calc(var(--spacing-unit) * 1);
+    color: var(--text-primary);
+}
+
+.conditions-list,
+.vaccines-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing-unit) * 1);
+}
+
+.condition-tag,
+.vaccine-tag {
+    background-color: rgba(37, 99, 235, 0.1);
+    color: var(--primary-color);
+    padding: calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit) * 1);
+    border-radius: calc(var(--radius) / 2);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.vaccine-tag {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--accent-color);
+}
+
+/* Age calculation display */
+.pet-age {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-top: calc(var(--spacing-unit) * 0.5);
+}
+
+/* Activity and Food modals */
+#activity-form,
+#food-form {
+    width: 100%;
+}
+
+#activity-form .form-group,
+#food-form .form-group {
+    margin-bottom: calc(var(--spacing-unit) * 2.5);
+}
+
+#activity-form .btn,
+#food-form .btn {
+    width: 100%;
+    margin-top: calc(var(--spacing-unit) * 2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .pet-form .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .pet-info {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .pet-info {
+        grid-template-columns: 1fr;
+    }
+    
+    .conditions-list,
+    .vaccines-list {
+        justify-content: center;
+    }
+}
