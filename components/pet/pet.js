@@ -226,11 +226,11 @@ class Pet {
     async handleActivityAdd(form) {
         const formData = new FormData(form);
         const activityData = {
-            petId: this.currentPetForActivity,
-            name: formData.get('name'),
+            pet_id: this.currentPetForActivity,
+            activity_id: formData.get('name'),
             frequency: formData.get('frequency'),
-            duration: parseInt(formData.get('duration'))
         };
+        console.log('Activity Data:', activityData);
 
         const submitBtn = form.querySelector('button[type="submit"]');
         this.setLoading(submitBtn, true);
@@ -265,10 +265,9 @@ class Pet {
     async handleFoodAdd(form) {
         const formData = new FormData(form);
         const foodData = {
-            petId: this.currentPetForActivity,
-            name: formData.get('name'),
+            pet_id: this.currentPetForActivity,
+            feeding_id: formData.get('name'),
             frequency: formData.get('frequency'),
-            quantity: parseInt(formData.get('quantity'))
         };
 
         const submitBtn = form.querySelector('button[type="submit"]');
@@ -477,6 +476,45 @@ class Pet {
         }
     });}
 
+    async loadActivities() {
+        try {
+            const response = await fetch('/activities');
+            const activities = await response.json();
+
+            const select = document.getElementById('activity-name');
+            select.innerHTML = ''; // Clear existing options
+
+            activities.forEach(activity => {
+                const option = document.createElement('option');
+                option.value = activity.activity_id;
+                option.textContent = activity.name;
+                select.appendChild(option);
+            });
+
+        } catch (error) {
+            console.error('Error loading activities:', error);
+        }
+    }
+
+    async loadFeedings() {
+        try {
+            const response = await fetch('/feedings');
+            const feedings = await response.json();
+
+            const select = document.getElementById('food-name');
+            select.innerHTML = ''; // Clear existing options
+
+            feedings.forEach(food => {
+                const option = document.createElement('option');
+                option.value = food.feeding_id;
+                option.textContent = food.name;
+                select.appendChild(option);
+            });
+
+        } catch (error) {
+            console.error('Error loading feedings:', error);
+        }
+    }
 
 }
 
@@ -486,6 +524,8 @@ window.addEventListener('DOMContentLoaded', () => {
     window.petComponent.loadVaccines();
     window.petComponent.loadSpecies();
     window.petComponent.setupBreedSelector();
+    window.petComponent.loadActivities();
+    window.petComponent.loadFeedings();
 });
 
 // Initialize pet component

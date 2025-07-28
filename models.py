@@ -103,3 +103,17 @@ class Pet_vaccine(Base):
     pet_id = Column(Integer, ForeignKey("pet.pet_id"), primary_key=True)
     vaccine_id = Column(Integer, ForeignKey("vaccine.vaccine_id"), primary_key=True)
 
+class Pet_activity(Base):
+    __tablename__ = "pet_activity"
+
+    pet_id = Column(Integer, ForeignKey("pet.pet_id"), primary_key=True)
+    activity_id = Column(Integer, ForeignKey("activity.activity_id"), primary_key=True)
+    weekly_frequency_activity = Column(Integer)  # Assuming frequency is stored as an integer (e.g., number of times per week)
+
+class Pet_feeding(Base):
+    __tablename__ = "pet_feeding"
+
+    pet_id = Column(Integer, ForeignKey("pet.pet_id"), primary_key=True)
+    feeding_id = Column(Integer, ForeignKey("feeding.feeding_id"), primary_key=True)
+    daily_meal_frequency = Column(Integer)  # Assuming frequency is stored as an integer (e.g., number of times per day)
+

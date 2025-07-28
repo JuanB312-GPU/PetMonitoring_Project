@@ -78,6 +78,27 @@ class Breed(BaseModel):
     species_id: int
     name: str
 
+class Activity(BaseModel):
+    activity_id: int
+    name: str
+    description: str
+
+class activityCreate(BaseModel):
+    pet_id: int
+    activity_id: int
+    frequency: int  # Assuming frequency is an integer representing weeks
+
+class Feeding(BaseModel):
+    feeding_id: int
+    name: str
+    description: str
+    calories: float
+
+class FeedingCreate(BaseModel):
+    pet_id: int
+    feeding_id: int
+    frequency: int  # Assuming frequency is an integer representing days
+
 class PetCreate(BaseModel):
     name: str
     user_id: int
@@ -147,6 +168,14 @@ def get_species(db: Session = Depends(get_db)):
 @app.get("/breeds/{species_id}", response_model=list[Breed])
 def get_breeds_by_species(species_id: int, db: Session = Depends(get_db)):
     return BD_Queries.get_breeds_by_species(db, species_id)
+
+@app.get("/activities", response_model=list[Activity])
+def get_activities(db: Session = Depends(get_db)):
+    return BD_Queries.get_activities(db)
+
+@app.get("/feedings", response_model=list[Feeding])
+def get_feedings(db: Session = Depends(get_db)):
+    return BD_Queries.get_feedings(db)
 
 @app.get("/api/pets", response_model=list[PetOut])
 def get_pets(user_id: int, db: Session = Depends(get_db)):
@@ -223,3 +252,41 @@ def create_pet(data: PetCreate, db: Session = Depends(get_db)):
             "conditions": conditions_names,
             "vaccines": vaccines_names
         }}
+
+@app.post("/api/activities")
+def create_pet_activity(data: activityCreate, db: Session = Depends(get_db)):
+    # Create pet activity
+    success = BD_inserts.create_pet_activity(
+        db, data.pet_id, data.activity_id, data.frequency
+    )
+    if not success:
+        raise HTTPException(status_code=400, detail="Failed to create activity")
+    
+    return {"message": "Activity created"}
+
+@app.post("/api/foods")
+def create_pet_feeding(data: FeedingCreate, db: Session = Depends(get_db)):
+    # Create pet feeding
+    success = BD_inserts.create_pet_feeding(
+        db, data.pet_id, data.feeding_id, data.frequency
+    )
+    if not success:
+        raise HTTPException(status_code=400, detail="Failed to create feeding")
+    
+    return {"message": "Feeding created"}
+
+@app.get("/api/activities/pet/{pet_id}")
+def get_activities_by_pet(pet_id: int, db: Session = Depends(get_db)):
+    activities = BD_Queries.get_activities_by_pet(db, pet_id)
+    if not activities:
+        raise HTTPException(status_code=404, detail="No activities found for this pet")
+    
+    return [{"name": name, "frequency": frequency} for name, frequency in activities]
+
+@app.get("/api/foods/pet/{pet_id}")
+def get_feedings_by_pet(pet_id: int, db: Session = Depends(get_db)):
+    feedings = BD_Queries.get_feedings_by_pet(db, pet_id)
+    if not feedings:
+        raise HTTPException(status_code=404, detail="No feedings found for this pet")
+    
+    return [{"name": name, "frequency": frequency} for name, frequency in feedings]

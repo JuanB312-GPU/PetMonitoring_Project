@@ -1,4 +1,5 @@
-from models import User, Medical_condition, Vaccine, Breed, Species, Pet_medical_condition, Pet_vaccine, Pet
+from models import User, Medical_condition, Vaccine, Breed, Species, Pet_medical_condition, Pet_vaccine, Pet, Activity, Feeding, Pet_activity, Pet_feeding
+from sqlalchemy.orm import Session
 
 class BD_Queries:
 
@@ -57,3 +58,33 @@ class BD_Queries:
     @staticmethod
     def get_user_pets(db, user_id: int):
         return db.query(Pet).filter(Pet.user_id == user_id).all()
+    
+    @staticmethod
+    def get_activities(db):
+        return db.query(Activity).all()
+    
+    @staticmethod
+    def get_activity_by_id(db, activity_id: int):
+        return db.query(Activity).filter(Activity.activity_id == activity_id).first()
+    
+    @staticmethod
+    def get_feedings(db):
+        return db.query(Feeding).all()
+    
+    @staticmethod
+    def get_activities_by_pet(db, pet_id: int):
+        return (
+            db.query(Activity.name, Pet_activity.weekly_frequency_activity)
+            .join(Pet_activity, Activity.activity_id == Pet_activity.activity_id)
+            .filter(Pet_activity.pet_id == pet_id)
+            .all()
+        )
+    
+    @staticmethod
+    def get_feedings_by_pet(db, pet_id: int):
+        return (
+            db.query(Feeding.name, Pet_feeding.daily_meal_frequency)
+            .join(Pet_feeding, Feeding.feeding_id == Pet_feeding.feeding_id)
+            .filter(Pet_feeding.pet_id == pet_id)
+            .all()
+        )

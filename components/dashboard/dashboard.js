@@ -343,14 +343,15 @@ class Dashboard {
             const foods = foodsResponse.ok ? await foodsResponse.json() : [];
 
             let content = '';
-            
+            console.log('Activities:', activities);
+            console.log('Foods:', foods);
             if (activities.length > 0) {
                 content += '<h4>Recent Activities:</h4>';
-                activities.slice(0, 3).forEach(activity => {
+                activities.slice(0, 2).forEach(activity => {
                     content += `
                         <div class="info-item">
                             <span class="info-label">${activity.name}:</span>
-                            <span class="info-value">${activity.duration}min, ${activity.frequency}</span>
+                            <span class="info-value">${activity.frequency} per week</span>
                         </div>
                     `;
                 });
@@ -362,7 +363,7 @@ class Dashboard {
                     content += `
                         <div class="info-item">
                             <span class="info-label">${food.name}:</span>
-                            <span class="info-value">${food.quantity}g, ${food.frequency}</span>
+                            <span class="info-value">${food.frequency} per day</span>
                         </div>
                     `;
                 });

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from models import User, Pet, History_register, Pet_medical_condition, Pet_vaccine
+from models import User, Pet, History_register, Pet_medical_condition, Pet_vaccine, Pet_activity, Pet_feeding
 
 class BD_inserts(BaseModel):
     
@@ -67,4 +67,28 @@ class BD_inserts(BaseModel):
         db.add(pet_vaccine)
         db.commit()
         db.refresh(pet_vaccine)
+        return True
+    
+    @staticmethod
+    def create_pet_activity(db, pet_id, activity_id, frequency):
+        pet_activity = Pet_activity(
+            pet_id=pet_id,
+            activity_id=activity_id,
+            weekly_frequency_activity=frequency
+        )
+        db.add(pet_activity)
+        db.commit()
+        db.refresh(pet_activity)
+        return True
+    
+    @staticmethod
+    def create_pet_feeding(db, pet_id, feeding_id, frequency):
+        pet_feeding = Pet_feeding(
+            pet_id=pet_id,
+            feeding_id=feeding_id,
+            daily_meal_frequency =frequency
+        )
+        db.add(pet_feeding)
+        db.commit()
+        db.refresh(pet_feeding)
         return True
