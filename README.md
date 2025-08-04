@@ -3,6 +3,7 @@ Repository for the Pet Monitoring website, this web application allows users to 
 ## Used Technologies
 A suite of software technologies for backend and frontend development, database management, and image APIs.
 - Python 3.x
-- React
+- HTML
+- CSS
 - Postgresql
 - CatApi (For images)
