@@ -147,11 +147,11 @@ def create_user(data: UserCreate, db: Session = Depends(get_db)):
     verification_email = BD_Queries.get_by_email(db, data.email)
     verification_phone = BD_Queries.get_by_phone(db, data.phone)
     if verfication_name:
-        raise HTTPException(status_code=400, detail="Name already registered")
+        raise HTTPException(status_code=409, detail="Name already registered")
     if verification_email:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=409, detail="Email already registered")
     if verification_phone:
-        raise HTTPException(status_code=400, detail="Phone number already registered")
+        raise HTTPException(status_code=409, detail="Phone number already registered")
 
     # Create user
     user = BD_inserts.create_user( 
@@ -165,39 +165,60 @@ def login_user(data: UserLogin, db: Session = Depends(get_db)):
     # Validate email and password
     user = BD_Queries.get_by_email(db, data.email) 
     if not user:
-        raise HTTPException(status_code=400, detail="Email not registered")
+        raise HTTPException(status_code=404, detail="Email not registered")
     if not user.verify_password(data.password):
-        raise HTTPException(status_code=400, detail="Incorrect password")
+        raise HTTPException(status_code=401, detail="Incorrect password")
     # If everything is ok, return user data
     return {"message": "Logged", "user": user}
 
 @app.get("/conditions", response_model=list[ConditionOut])
 def get_conditions(db: Session = Depends(get_db)):
+
+    if not BD_Queries.get_medical_conditions(db):
+        raise HTTPException(status_code=404, detail="No medical conditions found")
     return BD_Queries.get_medical_conditions(db)
 
 @app.get("/vaccines", response_model=list[VaccineOut])
 def get_vaccines(db: Session = Depends(get_db)):
+
+    if not BD_Queries.get_vaccines(db):
+        raise HTTPException(status_code=404, detail="No vaccines found")
     return BD_Queries.get_vaccines(db)
 
 @app.get("/species", response_model=list[Species])
 def get_species(db: Session = Depends(get_db)):
+
+    if not BD_Queries.get_species(db):
+        raise HTTPException(status_code=404, detail="No species found")
     return BD_Queries.get_species(db)
 
 @app.get("/breeds/{species_id}", response_model=list[Breed])
 def get_breeds_by_species(species_id: int, db: Session = Depends(get_db)):
+
+    if not BD_Queries.get_breeds_by_species(db, species_id):
+        raise HTTPException(status_code=404, detail="No breeds found for this species")
     return BD_Queries.get_breeds_by_species(db, species_id)
 
 @app.get("/activities", response_model=list[Activity])
 def get_activities(db: Session = Depends(get_db)):
+
+    if not BD_Queries.get_activities(db):
+        raise HTTPException(status_code=404, detail="No activities found")
     return BD_Queries.get_activities(db)
 
 @app.get("/feedings", response_model=list[Feeding])
 def get_feedings(db: Session = Depends(get_db)):
+
+    if not BD_Queries.get_feedings(db):
+        raise HTTPException(status_code=404, detail="No feedings found")
     return BD_Queries.get_feedings(db)
 
 @app.get("/api/pets", response_model=list[PetOut])
 def get_pets(user_id: int, db: Session = Depends(get_db)):
     pets = BD_Queries.get_user_pets(db, user_id)
+
+    if not pets:
+        raise HTTPException(status_code=404, detail="No pets found for this user")
 
     result = []
 
@@ -229,6 +250,11 @@ def get_pets(user_id: int, db: Session = Depends(get_db)):
 @app.post("/api/pets")
 def create_pet(data: PetCreate, db: Session = Depends(get_db)):
     print(data)
+
+    # Validate if pet with the same name already exists for the user
+    existing_pet = BD_Queries.get_pet_by_name_user(db, data.name, data.user_id)
+    if existing_pet:
+        raise HTTPException(status_code=409, detail="Pet with this name already exists")
 
     # Create pet
     pet = BD_inserts.create_pet(
