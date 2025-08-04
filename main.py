@@ -121,6 +121,24 @@ class PetOut(BaseModel):
     conditions: List[str]
     vaccines: List[str]
 
+class PetHistory(BaseModel):
+    petId: int
+    reportType: str
+    bmiStatus: float
+    date: date
+
+class ReportResponse(BaseModel):
+    id: int
+    report_type: str
+    created_at: date
+    pet_name: str
+    pet_species: str
+    pet_breed: str
+    pet_weight: float
+    pet_height: float
+    health_metric: float
+    conditions: List[str]
+
 @app.post("/api/auth/register")
 def create_user(data: UserCreate, db: Session = Depends(get_db)):
 
@@ -290,3 +308,17 @@ def get_feedings_by_pet(pet_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="No feedings found for this pet")
     
     return [{"name": name, "frequency": frequency} for name, frequency in feedings]
+
+@app.post("/api/reports")
+def create_report(data: PetHistory,db: Session = Depends(get_db)):
+    BD_inserts.create_pet_history(
+        db, data.petId, data.date, round(data.bmiStatus,2))
+    return {"message": "Report created"}
+
+@app.get("/api/reports/{user_id}", response_model=list[ReportResponse])
+def get_pet_reports_for_user(user_id: int, db: Session = Depends(get_db)):
+    reports = BD_Queries.get_pet_reports_for_user(db, user_id)
+    if not reports:
+        raise HTTPException(status_code=404, detail="No reports found for this user")
+    
+    return reports

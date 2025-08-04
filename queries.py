@@ -1,4 +1,4 @@
-from models import User, Medical_condition, Vaccine, Breed, Species, Pet_medical_condition, Pet_vaccine, Pet, Activity, Feeding, Pet_activity, Pet_feeding
+from models import User, Medical_condition, Vaccine, Breed, Species, Pet_medical_condition, Pet_vaccine, Pet, Activity, Feeding, Pet_activity, Pet_feeding, Pet_history
 from sqlalchemy.orm import Session
 
 class BD_Queries:
@@ -88,3 +88,51 @@ class BD_Queries:
             .filter(Pet_feeding.pet_id == pet_id)
             .all()
         )
+    
+    @staticmethod
+    def get_pet_reports_for_user(db, user_id: int):
+        pets = db.query(Pet).filter(Pet.user_id == user_id).all()
+
+        reports = []
+        for pet in pets:
+            
+            species = db.query(Species).filter(Species.species_id == pet.species_id).first()
+            breed = db.query(Breed).filter(Breed.breed_id == pet.breed_id).first()
+
+            
+            last_history = (
+                db.query(Pet_history)
+                .filter(Pet_history.pet_id == pet.pet_id)
+                .order_by(Pet_history.date.desc())
+                .first()
+            )
+
+            
+            condition_ids = (
+                db.query(Pet_medical_condition.mc_id)
+                .filter(Pet_medical_condition.pet_id == pet.pet_id)
+                .all()
+            )
+            condition_ids = [cid[0] for cid in condition_ids]
+            conditions = (
+                db.query(Medical_condition.name)
+                .filter(Medical_condition.mc_id.in_(condition_ids))
+                .all()
+            )
+            condition_names = [c[0] for c in conditions]
+
+            if last_history:
+                reports.append({
+                    "id": last_history.hr_id,
+                    "report_type": "health_summary",
+                    "created_at": last_history.date.isoformat(),
+                    "pet_name": pet.name,
+                    "pet_species": species.name if species else "Unknown",
+                    "pet_breed": breed.name if breed else "Unknown",
+                    "pet_weight": float(pet.weight),
+                    "pet_height": float(pet.height),
+                    "health_metric": float(last_history.body_metric),
+                    "conditions": condition_names
+                })
+
+        return reports

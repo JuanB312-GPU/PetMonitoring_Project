@@ -14,7 +14,9 @@ class Reports {
             const token = localStorage.getItem('authToken');
             if (!token) return;
 
-            const response = await fetch('/api/reports', {
+            const userData = JSON.parse(localStorage.getItem('userData'));
+            // Fetch reports from the API
+            const response =  await fetch(`http://127.0.0.1:8000/api/reports/${userData.user_id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -30,40 +32,47 @@ class Reports {
     }
 
     renderReports() {
-        const reportsGrid = document.getElementById('reports-grid');
-        if (this.reports.length === 0) {
-            reportsGrid.innerHTML = `
-                <div class="empty-state">
-                    <h3>No Reports Generated</h3>
-                    <p>Generate health reports from the My Pets section to see them here.</p>
-                </div>
-            `;
-            return;
-        }
-        reportsGrid.innerHTML = this.reports.map(report => `
-            <div class="report-card">
-                <div class="report-header">
-                    <h3>${report.pet_name} - Health Report</h3>
-                    <span class="report-date">${new Date(report.created_at).toLocaleDateString()}</span>
-                </div>
-                <div class="report-body">
-                    <p><strong>Report Type:</strong> ${report.report_type.replace('_', ' ').toUpperCase()}</p>
-                    <p><strong>Pet:</strong> ${report.pet_name} (${report.pet_species})</p>
-                    <div class="report-metrics">
-                        ${report.data.metrics ? Object.entries(report.data.metrics).map(([key, value]) => `
-                            <div class="metric-item">
-                                <span class="metric-label">${key.replace('_', ' ').toUpperCase()}:</span>
-                                <span class="metric-value">${value}</span>
-                            </div>
-                        `).join('') : ''}
-                    </div>
-                </div>
-                <div class="report-actions">
-                    <button class="btn btn-primary" onclick="window.reportsComponent.viewReport('${report.id}')">View Details</button>
-                    <button class="btn btn-secondary" onclick="window.reportsComponent.downloadReport('${report.id}')">Download</button>
-                </div>
+    const reportsGrid = document.getElementById('reports-grid');
+    if (this.reports.length === 0) {
+        reportsGrid.innerHTML = `
+            <div class="empty-state">
+                <h3>No Reports Generated</h3>
+                <p>Generate health reports from the My Pets section to see them here.</p>
             </div>
-        `).join('');
+        `;
+        return;
+    }
+
+    reportsGrid.innerHTML = this.reports.map(report => `
+        <div class="report-card">
+            <div class="report-header">
+                <h3>${report.pet_name} - ${report.report_type.replace('_', ' ').toUpperCase()}</h3>
+                <span class="report-date">${new Date(report.created_at).toLocaleDateString()}</span>
+            </div>
+            <div class="report-body">
+                <p><strong>Species:</strong> ${report.pet_species}</p>
+                <p><strong>Breed:</strong> ${report.pet_breed}</p>
+                <p><strong>Weight:</strong> ${report.pet_weight} kg</p>
+                <p><strong>Height:</strong> ${report.pet_height} cm</p>
+                <p><strong>Health Metric:</strong> ${report.health_metric}</p>
+
+                ${report.conditions && report.conditions.length > 0 ? `
+                    <div class="pet-conditions">
+                        <h4>Medical Conditions</h4>
+                        <div class="conditions-list">
+                            ${report.conditions.map(condition => `
+                                <span class="condition-tag">${condition.replace('_', ' ').toUpperCase()}</span>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+            <div class="report-actions">
+                <button class="btn btn-primary" onclick="window.reportsComponent.viewReport('${report.id}')">View Details</button>
+                <button class="btn btn-secondary" onclick="window.reportsComponent.downloadReport('${report.id}')">Download</button>
+            </div>
+        </div>
+    `).join('');
     }
 
     // Generate HTML report inspired by Whiskers_health_report_2025-07-25.html

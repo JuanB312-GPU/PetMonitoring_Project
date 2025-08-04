@@ -160,6 +160,7 @@ class Auth {
                 window.navbarComponent.updateAuthState(result.user);
                 this.hideAuthModal();
                 this.showUserContent(result.user, true);
+                console.log('User registered:', result.user);
                 
                 this.showSuccess('Registration successful!');
             } else {

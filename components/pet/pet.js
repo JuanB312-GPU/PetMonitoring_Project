@@ -378,6 +378,8 @@ class Pet {
             const response = await fetch('/vaccines');
             const vaccines = await response.json();
 
+            console.log('Vaccines:', vaccines);
+
             const select = document.getElementById('pet-vaccines');
             select.innerHTML = ''; // Clear existing options
 
@@ -400,6 +402,8 @@ class Pet {
 
         const select = document.getElementById('pet-conditions');
         select.innerHTML = ''; // Clear existing options
+
+        console.log('Conditions:', conditions);
 
         conditions.forEach(condition => {
             const option = document.createElement('option');

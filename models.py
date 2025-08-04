@@ -83,14 +83,6 @@ class Feeding(Base):
     description = Column(String)
     calories = Column(Numeric(6, 2))
 
-class History_register(Base):
-    __tablename__ = "history_register"
-
-    hr_id = Column(Integer, primary_key=True, index=True)
-    pet_id = Column(Integer)  # Foreign key to Pet table
-    date = Column(Date)
-    body_metric = Column(Numeric(2, 1))  # Assuming body metric is a float value
-
 class Pet_medical_condition(Base):
     __tablename__ = "pet_mc"
 
@@ -116,4 +108,12 @@ class Pet_feeding(Base):
     pet_id = Column(Integer, ForeignKey("pet.pet_id"), primary_key=True)
     feeding_id = Column(Integer, ForeignKey("feeding.feeding_id"), primary_key=True)
     daily_meal_frequency = Column(Integer)  # Assuming frequency is stored as an integer (e.g., number of times per day)
+
+class Pet_history(Base):
+    __tablename__ = "history_register"
+
+    hr_id = Column(Integer, primary_key=True, index=True)
+    pet_id = Column(Integer)
+    date = Column(Date)  # Date of the history record
+    body_metric = Column(Numeric(2, 1))  # Body metric value (e.g., weight, BMI, etc.)
 

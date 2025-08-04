@@ -3,6 +3,7 @@ class Dashboard {
     constructor() {
         this.currentPet = null;
         this.init();
+        this.bmiStatus = null;
     }
 
     init() {
@@ -98,6 +99,7 @@ class Dashboard {
         // BMI calculation for pets (simplified)
         const heightInM = pet.height / 100;
         const bmi = pet.weight / (heightInM * heightInM);
+        this.bmiStatus = bmi;
         
         let status, level;
         if (pet.species === 'dog') {
@@ -384,18 +386,24 @@ class Dashboard {
         if (!this.currentPet) return;
 
         try {
-            const token = localStorage.getItem('authToken');
-            const response = await fetch('/api/reports', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    petId: this.currentPet.id,
-                    reportType: 'health_summary'
-                })
-            });
+            const payload = {
+            petId: this.currentPet.id,
+            reportType: 'health_summary',
+            bmiStatus: this.bmiStatus,
+            date: new Date().toISOString().split('T')[0]
+        };
+
+        console.log('Payload enviado al backend:', payload); // 👈 Aquí lo ves en la consola
+
+        const token = localStorage.getItem('authToken');
+        const response = await fetch('/api/reports', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        });
 
             if (response.ok) {
                 const report = await response.json();
