@@ -10,3 +10,4 @@ inserts_legacy.py
 main_legacy.py
 models_legacy.py
 queries_legacy.py
+.vscode
