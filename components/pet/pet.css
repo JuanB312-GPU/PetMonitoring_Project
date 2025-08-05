@@ -7,6 +7,10 @@
     margin-bottom: calc(var(--spacing-unit) * 2.5);
 }
 
+.pet-actions {
+    margin-top: 1rem; /* puedes ajustar el valor según lo que necesites */
+}
+
 .pet-form .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;

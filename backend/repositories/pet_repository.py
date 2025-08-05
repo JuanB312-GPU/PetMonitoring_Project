@@ -41,3 +41,7 @@ class PetRepository:
         db.commit()
         db.refresh(pet)
         return pet
+    
+    @staticmethod
+    def get_pet_by_id(db: Session, pet_id: int):
+        return db.query(Pet).filter(Pet.pet_id == pet_id).first()

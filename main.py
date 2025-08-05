@@ -7,9 +7,6 @@ from backend.config.database import Base, engine, get_db
 from backend.config.settings import settings
 from backend.routers import auth, pets, medical, activities, reports
 from backend.services.medical_service import MedicalService
-from backend.services.pet_service import PetService
-from backend.repositories.pet_repository import PetRepository
-from typing import List
 
 # Crear tablas solo si no estamos en modo de importación
 import os

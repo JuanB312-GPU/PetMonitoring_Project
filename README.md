@@ -15,9 +15,14 @@ A suite of software technologies for backend and frontend development, and datab
 ### Create user account
 Create a personal account, to monitor your pets' health:
 
-![Register form](imgs/Register.png)
+![Register form](imgs/uRegister.png)
 
 ## Create pet's profile
 Create a specific profile for your pets, with sepecies, breed, medical conditions and applicated vaccines:
 
-![Register form](imgs/PetRegister.png)
+![Register form](imgs/PRegister.png)
+
+## Special description cards for each pet
+The website displays a special description sheet for each pet, indicating its age, medical conditions, and vaccinations:
+
+![Register form](imgs/CardP.png)
