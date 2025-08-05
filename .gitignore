@@ -1,0 +1,12 @@
+node_modules
+__pycache__
+*.pyc
+.venv
+*.env
+start_app.bat
+start_app.ps1
+connection_legacy.py
+inserts_legacy.py
+main_legacy.py
+models_legacy.py
+queries_legacy.py

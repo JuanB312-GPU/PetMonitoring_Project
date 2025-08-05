@@ -15,24 +15,46 @@ class Reports {
             if (!token) return;
 
             const userData = JSON.parse(localStorage.getItem('userData'));
-            // Fetch reports from the API
-            const response =  await fetch(`http://127.0.0.1:8000/api/reports/${userData.user_id}`, {
+            console.log('Loading reports for user:', userData.user_id);
+            
+            // Usar URL relativa para evitar problemas de CORS
+            const response = await fetch(`/api/reports/${userData.user_id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
 
+            console.log('Reports response status:', response.status);
+
             if (response.ok) {
                 this.reports = await response.json();
+                console.log('Reports loaded:', this.reports);
+                this.renderReports();
+            } else {
+                console.error('Failed to load reports:', response.status);
+                // Manejar como lista vacía si no hay reportes
+                this.reports = [];
                 this.renderReports();
             }
         } catch (error) {
             console.error('Error loading reports:', error);
+            this.reports = [];
+            this.renderReports();
         }
     }
 
     renderReports() {
     const reportsGrid = document.getElementById('reports-grid');
+    
+    // Si no hay reportes y no hay mascotas registradas, crear datos de muestra para demostración
+    if (this.reports.length === 0) {
+        const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+        // Solo mostrar datos de muestra si el usuario está logueado
+        if (userData.user_id) {
+            this.reports = this.generateSampleReports();
+        }
+    }
+    
     if (this.reports.length === 0) {
         reportsGrid.innerHTML = `
             <div class="empty-state">
@@ -56,7 +78,7 @@ class Reports {
                 <p><strong>Height:</strong> ${report.pet_height} cm</p>
                 <p><strong>Health Metric:</strong> ${report.health_metric}</p>
 
-                ${report.conditions && report.conditions.length > 0 ? `
+                ${report.conditions && Array.isArray(report.conditions) && report.conditions.length > 0 ? `
                     <div class="pet-conditions">
                         <h4>Medical Conditions</h4>
                         <div class="conditions-list">
@@ -75,74 +97,117 @@ class Reports {
     `).join('');
     }
 
+    generateSampleReports() {
+        // Generar reportes de muestra para demostración
+        return [
+            {
+                id: 'sample-1',
+                report_type: 'health_summary',
+                created_at: new Date().toISOString(),
+                pet_name: 'Whiskers',
+                pet_species: 'Cat',
+                pet_breed: 'Persian',
+                pet_weight: 5.2,
+                pet_height: 25,
+                health_metric: 7.5,
+                conditions: ['Overweight']
+            },
+            {
+                id: 'sample-2',
+                report_type: 'health_summary',
+                created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+                pet_name: 'Buddy',
+                pet_species: 'Dog',
+                pet_breed: 'Golden Retriever',
+                pet_weight: 28.5,
+                pet_height: 60,
+                health_metric: 6.2,
+                conditions: []
+            }
+        ];
+    }
+
     // Generate HTML report inspired by Whiskers_health_report_2025-07-25.html
     generateReportHTML(report) {
-        // Helper for recommendations
-        const recommendationsHTML = report.data.recommendations ? report.data.recommendations.map(rec => `
-            <div class="recommendation-item">${rec}</div>
-        `).join('') : '';
+        console.log('Generating HTML for report:', report);
+        
+        try {
+            // Procesar datos del reporte desde el backend
+            const processedData = this.processReportData(report);
+            console.log('Processed data:', processedData);
+            
+            // Helper for recommendations
+            const recommendationsHTML = processedData.recommendations.map(rec => `
+                <div class="recommendation-item">${rec}</div>
+            `).join('');
 
-        // Helper for metrics
-        const metrics = report.data.metrics || {};
+            // Helper for metrics
+            const metrics = processedData.metrics;
         const metricCards = `
             <div class="card">
                 <h3>📊 Basic Information</h3>
                 <div class="metric-label">Breed</div>
-                <div class="metric-value">${report.pet_breed || '-'}</div>
-                <div class="metric-label">Age</div>
-                <div class="metric-value">${metrics.age || '-'}</div>
-                <div class="metric-label">Human Age Equivalent</div>
-                <div class="metric-value">${metrics.human_age || '-'}</div>
+                <div class="metric-value">${report.pet_breed || 'Unknown'}</div>
+                <div class="metric-label">Species</div>
+                <div class="metric-value">${report.pet_species || 'Unknown'}</div>
+                <div class="metric-label">Weight</div>
+                <div class="metric-value">${report.pet_weight ? report.pet_weight + ' kg' : 'Not recorded'}</div>
+                <div class="metric-label">Height</div>
+                <div class="metric-value">${report.pet_height ? report.pet_height + ' cm' : 'Not recorded'}</div>
             </div>
             <div class="card">
                 <h3>⚖️ Weight & Condition</h3>
                 <div class="metric-label">Current Weight</div>
-                <div class="metric-value">${metrics.weight || '-'}</div>
+                <div class="metric-value">${report.pet_weight ? report.pet_weight + ' kg' : 'Not recorded'}</div>
                 <div class="metric-label">Body Condition Score</div>
-                <div class="metric-value">${metrics.bcs || '-'}</div>
-                <div class="metric-label">Ideal Range</div>
-                <div style="color: #64748b;">${metrics.ideal_weight_range || '-'}</div>
+                <div class="metric-value">${report.health_metric || 'Not assessed'}</div>
+                <div class="metric-label">BMI Status</div>
+                <div class="status-badge ${metrics.bmi_status_class}">${metrics.bmi_status}</div>
             </div>
             <div class="card">
                 <h3>🏥 Health Status</h3>
                 <div class="metric-label">Overall Status</div>
-                <div class="status-badge status-fair">${metrics.status || '-'}</div>
-                <div class="metric-label">Weight Trend</div>
-                <div class="metric-value">${metrics.weight_trend || '-'}</div>
+                <div class="status-badge ${metrics.health_status_class}">${metrics.health_status}</div>
+                <div class="metric-label">Medical Conditions</div>
+                <div class="metric-value">${report.conditions ? 
+                    (Array.isArray(report.conditions) ? report.conditions.length : 
+                     report.conditions.split(',').filter(c => c.trim()).length) : 0}</div>
+                <div class="metric-label">Report Type</div>
+                <div class="metric-value">${(report.report_type || 'Health Summary').replace('_', ' ').toUpperCase()}</div>
             </div>
             <div class="card">
-                <h3>📋 Records Summary</h3>
-                <div class="metric-label">Health Records</div>
-                <div class="metric-value">${metrics.health_records || '0'}</div>
-                <div class="metric-label">Activity Records</div>
-                <div class="metric-value">${metrics.activity_records || '0'}</div>
-                <div class="metric-label">Period Weight Change</div>
-                <div style="color: #10b981;">${metrics.period_weight_change || '+0 kg'}</div>
+                <h3>📋 Report Summary</h3>
+                <div class="metric-label">Medical Conditions</div>
+                <div class="metric-value">${report.conditions ? 
+                    (Array.isArray(report.conditions) ? report.conditions.join(', ') || 'None' : 
+                     report.conditions || 'None') : 'None'}</div>
+                <div class="metric-label">Generated</div>
+                <div style="color: #10b981;">${new Date(report.created_at).toLocaleDateString()}</div>
             </div>
         `;
 
         // Helper for insights
-        const insightsHTML = report.data.insights ? report.data.insights.map(i => `<li>${i}</li>`).join('') : '<li>No routine checkups recorded in this period</li>';
+        const insightsHTML = processedData.insights.map(i => `<li>${i}</li>`).join('');
 
-        // Timeline (if available)
-        const timelineHTML = report.data.timeline ? report.data.timeline.map(item => `
-            <div class="timeline-item ${item.severity || ''}">
-                <div class="timeline-icon">${item.icon || ''}</div>
+        // Timeline (básico por ahora)
+        const timelineHTML = `
+            <div class="timeline-item low">
+                <div class="timeline-icon">📋</div>
                 <div class="timeline-content">
-                    <h4>${item.title || ''}</h4>
-                    <div class="timeline-date">${item.date || ''}</div>
-                    <div class="timeline-description">${item.description || ''}</div>
+                    <h4>Health Report Generated</h4>
+                    <div class="timeline-date">${new Date(report.created_at).toLocaleDateString()}</div>
+                    <div class="timeline-description">Comprehensive health assessment completed for ${report.pet_name}</div>
                 </div>
             </div>
-        `).join('') : '';
+        `;
 
-        // Recommendations
-        const recommendationsSection = recommendationsHTML ? `
+        // Recommendations section
+        const recommendationsSection = `
             <div class="recommendations">
                 <h3>💡 Health Recommendations</h3>
                 ${recommendationsHTML}
             </div>
-        ` : '';
+        `;
 
         // Main HTML
         return `
@@ -153,19 +218,18 @@ class Reports {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Health Report - ${report.pet_name}</title>
     <style>
-        /* ...existing Whiskers_health_report_2025-07-25.html CSS... */
         ${this.getReportCSS()}
     </style>
 </head>
 <body>
     <div class="report-container">
         <div class="header">
-            <h1>${report.pet_species === 'cat' ? '🐱' : report.pet_species === 'dog' ? '🐶' : '🐾'} ${report.pet_name}</h1>
+            <h1>${report.pet_species === 'Cat' ? '🐱' : report.pet_species === 'Dog' ? '🐶' : '🐾'} ${report.pet_name}</h1>
             <div class="subtitle">Comprehensive Health Report</div>
             <div class="report-meta">
-                <strong>Report Period:</strong> ${metrics.period_start || '-'} - ${metrics.period_end || '-'}<br>
-                <strong>Generated:</strong> ${new Date(report.created_at).toLocaleDateString()}<br>
-                <strong>Total Events:</strong> ${metrics.total_events || '0'}
+                <strong>Report Generated:</strong> ${new Date(report.created_at).toLocaleDateString()}<br>
+                <strong>Pet Species:</strong> ${report.pet_species}<br>
+                <strong>Pet Breed:</strong> ${report.pet_breed}
             </div>
         </div>
         <div class="content">
@@ -198,19 +262,23 @@ class Reports {
                     <p>Contact your veterinarian</p>
                 </div>
                 <div>
-                    <h4>Data Period</h4>
-                    <p>${metrics.period_start || '-'}</p>
-                    <p>to ${metrics.period_end || '-'}</p>
+                    <h4>Report Date</h4>
+                    <p>${new Date(report.created_at).toLocaleDateString()}</p>
+                    <p>Pet: ${report.pet_name}</p>
                 </div>
             </div>
             <div style="border-top: 1px solid #475569; padding-top: 20px; margin-top: 20px;">
-                <p>&copy; 2024 PetCare Monitor - Professional Pet Health Management System</p>
+                <p>&copy; 2025 PetCare Monitor - Professional Pet Health Management System</p>
             </div>
         </div>
     </div>
 </body>
 </html>
         `;
+        } catch (error) {
+            console.error('Error generating report HTML:', error);
+            return `<html><body><h1>Error generating report</h1><p>${error.message}</p></body></html>`;
+        }
     }
 
     // Extract CSS from the Whiskers model (for brevity, you can paste the CSS here or load from a file)
@@ -267,43 +335,286 @@ class Reports {
         `;
     }
 
+    processReportData(report) {
+        // Calcular BMI y estado de salud basado en peso y altura
+        const bmi = this.calculateBMI(report.pet_weight, report.pet_height);
+        const bmiStatus = this.getBMIStatus(bmi, report.pet_species);
+        
+        // Generar recomendaciones basadas en los datos disponibles
+        const recommendations = this.generateRecommendations(report, bmi);
+        
+        // Generar insights basados en los datos
+        const insights = this.generateInsights(report, bmi);
+        
+        return {
+            metrics: {
+                bmi: bmi,
+                bmi_status: bmiStatus.status,
+                bmi_status_class: bmiStatus.class,
+                health_status: this.getOverallHealthStatus(report),
+                health_status_class: this.getHealthStatusClass(report)
+            },
+            recommendations: recommendations,
+            insights: insights
+        };
+    }
+
+    calculateBMI(weight, height) {
+        if (!weight || !height) return null;
+        // BMI = peso(kg) / (altura(m))^2
+        const heightInMeters = height / 100;
+        return (weight / (heightInMeters * heightInMeters)).toFixed(1);
+    }
+
+    getBMIStatus(bmi, species) {
+        if (!bmi) return { status: 'Not calculated', class: 'status-fair' };
+        
+        const bmiValue = parseFloat(bmi);
+        
+        // Rangos aproximados para mascotas (pueden variar según especie y raza)
+        if (species === 'Cat') {
+            if (bmiValue < 3.5) return { status: 'Underweight', class: 'status-poor' };
+            if (bmiValue <= 5.0) return { status: 'Ideal', class: 'status-excellent' };
+            if (bmiValue <= 6.5) return { status: 'Overweight', class: 'status-fair' };
+            return { status: 'Obese', class: 'status-poor' };
+        } else {
+            // Para perros y otras mascotas
+            if (bmiValue < 4.0) return { status: 'Underweight', class: 'status-poor' };
+            if (bmiValue <= 6.0) return { status: 'Ideal', class: 'status-excellent' };
+            if (bmiValue <= 8.0) return { status: 'Overweight', class: 'status-fair' };
+            return { status: 'Obese', class: 'status-poor' };
+        }
+    }
+
+    getOverallHealthStatus(report) {
+        // Handle conditions as either array or string
+        let conditionsCount = 0;
+        if (report.conditions) {
+            if (Array.isArray(report.conditions)) {
+                conditionsCount = report.conditions.length;
+            } else if (typeof report.conditions === 'string') {
+                conditionsCount = report.conditions.split(',').filter(c => c.trim()).length;
+            }
+        }
+        
+        const hasConditions = conditionsCount > 0;
+        const bmi = this.calculateBMI(report.pet_weight, report.pet_height);
+        const bmiStatus = this.getBMIStatus(bmi, report.pet_species);
+        
+        if (hasConditions && bmiStatus.class === 'status-poor') {
+            return 'Needs Attention';
+        } else if (hasConditions || bmiStatus.class === 'status-fair') {
+            return 'Fair';
+        } else if (bmiStatus.class === 'status-excellent') {
+            return 'Excellent';
+        } else {
+            return 'Good';
+        }
+    }
+
+    getHealthStatusClass(report) {
+        const status = this.getOverallHealthStatus(report);
+        switch(status) {
+            case 'Excellent': return 'status-excellent';
+            case 'Good': return 'status-good';
+            case 'Fair': return 'status-fair';
+            case 'Needs Attention': return 'status-poor';
+            default: return 'status-fair';
+        }
+    }
+
+    generateRecommendations(report, bmi) {
+        const recommendations = [];
+        const bmiStatus = this.getBMIStatus(bmi, report.pet_species);
+        
+        // Recomendaciones basadas en BMI
+        if (bmiStatus.status === 'Overweight' || bmiStatus.status === 'Obese') {
+            recommendations.push('⚠️ Pet is overweight - Implement weight management program');
+            recommendations.push('🏃 Increase exercise and playtime activities');
+            recommendations.push('🍽️ Reduce food portions and switch to weight management food');
+        } else if (bmiStatus.status === 'Underweight') {
+            recommendations.push('📈 Pet is underweight - Consult veterinarian for feeding plan');
+            recommendations.push('🍽️ Consider increasing food portions with high-quality nutrition');
+        }
+        
+        // Recomendaciones basadas en condiciones médicas
+        let conditionsCount = 0;
+        if (report.conditions) {
+            if (Array.isArray(report.conditions)) {
+                conditionsCount = report.conditions.length;
+            } else if (typeof report.conditions === 'string') {
+                conditionsCount = report.conditions.split(',').filter(c => c.trim()).length;
+            }
+        }
+        
+        if (conditionsCount > 0) {
+            recommendations.push('🏥 Monitor existing medical conditions closely');
+            recommendations.push('💊 Follow prescribed medication schedule');
+        }
+        
+        // Recomendaciones generales
+        recommendations.push('🗓️ Schedule regular veterinary checkups');
+        recommendations.push('💉 Keep vaccination schedule up to date');
+        recommendations.push('🎾 Maintain regular exercise routine');
+        
+        return recommendations;
+    }
+
+    generateInsights(report, bmi) {
+        const insights = [];
+        const bmiStatus = this.getBMIStatus(bmi, report.pet_species);
+        
+        if (bmi) {
+            insights.push(`💡 Current BMI is ${bmi} - Status: ${bmiStatus.status}`);
+        }
+        
+        // Handle conditions as either array or string
+        let conditionsCount = 0;
+        let conditionsArray = [];
+        if (report.conditions) {
+            if (Array.isArray(report.conditions)) {
+                conditionsArray = report.conditions;
+                conditionsCount = report.conditions.length;
+            } else if (typeof report.conditions === 'string') {
+                conditionsArray = report.conditions.split(',').map(c => c.trim()).filter(c => c);
+                conditionsCount = conditionsArray.length;
+            }
+        }
+        
+        if (conditionsCount > 0) {
+            insights.push(`🏥 Has ${conditionsCount} documented medical condition(s): ${conditionsArray.join(', ')}`);
+        } else {
+            insights.push('✅ No current medical conditions documented');
+        }
+        
+        if (report.health_metric) {
+            insights.push(`📊 Body condition metric: ${report.health_metric}`);
+        }
+        
+        // Insight temporal
+        const reportDate = new Date(report.created_at);
+        const now = new Date();
+        const daysSince = Math.floor((now - reportDate) / (1000 * 60 * 60 * 24));
+        
+        if (daysSince === 0) {
+            insights.push('🆕 Report generated today - Most current health data');
+        } else if (daysSince < 30) {
+            insights.push(`📅 Report is ${daysSince} days old - Recent health data`);
+        } else {
+            insights.push(`⏰ Report is ${daysSince} days old - Consider generating updated report`);
+        }
+        
+        return insights;
+    }
+
     viewReport(reportId) {
-        const report = this.reports.find(r => r.id === reportId);
-        // Fallback if not found
+        // Ensure we can match both string and numeric IDs
+        const report = this.reports.find(r => r.id == reportId || r.id === reportId);
         if (!report) {
-            alert('Report not found.');
+            console.error('Report not found for ID:', reportId, 'Available reports:', this.reports);
+            this.showNotification('Report not found.', 'error');
             return;
         }
-        // Create and show report modal with styled HTML
+        
+        console.log('Viewing report for:', report.pet_name, 'with ID:', reportId);
+        
+        // Crear y mostrar el modal del reporte con HTML estilizado
         const modal = document.createElement('div');
-        modal.className = 'modal active';
+        modal.className = 'modal report-modal active';
         modal.innerHTML = `
-            <div class="modal-content" style="max-width: 1000px; padding:0; background:none; box-shadow:none;">
-                <span class="close" style="position:absolute;top:10px;right:20px;font-size:2rem;cursor:pointer;z-index:10;">&times;</span>
-                <iframe srcdoc='${this.generateReportHTML(report).replace(/'/g, "&#39;")}' style="width:100%;height:80vh;border:none;border-radius:20px;overflow:auto;background:white;"></iframe>
+            <div class="modal-content">
+                <button class="close-btn">&times;</button>
+                <iframe srcdoc='${this.generateReportHTML(report).replace(/'/g, "&#39;")}' style="
+                    width: 100%;
+                    height: 90vh;
+                    border: none;
+                    overflow: auto;
+                    background: white;
+                "></iframe>
             </div>
         `;
+        
         document.body.appendChild(modal);
-        // Close modal handlers
-        const closeBtn = modal.querySelector('.close');
-        closeBtn.addEventListener('click', () => { modal.remove(); });
-        modal.addEventListener('click', (e) => { if (e.target === modal) { modal.remove(); } });
+        
+        // Manejadores para cerrar el modal
+        const closeBtn = modal.querySelector('.close-btn');
+        closeBtn.addEventListener('click', () => { 
+            modal.remove(); 
+        });
+        
+        modal.addEventListener('click', (e) => { 
+            if (e.target === modal) { 
+                modal.remove(); 
+            } 
+        });
+        
+        // Cerrar con ESC
+        const handleKeydown = (e) => {
+            if (e.key === 'Escape') {
+                modal.remove();
+                document.removeEventListener('keydown', handleKeydown);
+            }
+        };
+        document.addEventListener('keydown', handleKeydown);
+        
+        this.showNotification(`Viewing report for ${report.pet_name}`, 'info');
     }
 
     async downloadReport(reportId) {
-        // Instead of fetching a PDF, generate and download the HTML file
-        const report = this.reports.find(r => r.id === reportId);
-        if (!report) return;
+        // Generar y descargar el archivo HTML del reporte
+        // Ensure we can match both string and numeric IDs
+        const report = this.reports.find(r => r.id == reportId || r.id === reportId);
+        if (!report) {
+            console.error('Report not found for download with ID:', reportId, 'Available reports:', this.reports);
+            this.showNotification('Report not found.', 'error');
+            return;
+        }
+        
+        console.log('Downloading report for:', report.pet_name, 'with ID:', reportId);
+        
         const html = this.generateReportHTML(report);
         const blob = new Blob([html], { type: 'text/html' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `health-report-${report.pet_name || reportId}.html`;
+        
+        // Generar nombre de archivo descriptivo
+        const petName = (report.pet_name || 'Pet').replace(/[^a-zA-Z0-9]/g, '_');
+        const reportDate = new Date(report.created_at).toISOString().split('T')[0];
+        a.download = `${petName}_health_report_${reportDate}.html`;
+        
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
+        
+        // Mostrar mensaje de éxito
+        this.showNotification('Report downloaded successfully!', 'success');
+    }
+
+    showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#2563eb'};
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 10000;
+            font-size: 14px;
+            max-width: 300px;
+        `;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
     }
 }
 

@@ -383,42 +383,66 @@ class Dashboard {
     }
 
     async generateHealthReport() {
-        if (!this.currentPet) return;
+        if (!this.currentPet) {
+            this.showError('Please select a pet first');
+            return;
+        }
 
         try {
+            // Asegurar que tenemos el BMI calculado
+            if (this.bmiStatus === null) {
+                this.updateHealthMetrics(this.currentPet);
+            }
+
             const payload = {
-            petId: this.currentPet.id,
-            reportType: 'health_summary',
-            bmiStatus: this.bmiStatus,
-            date: new Date().toISOString().split('T')[0]
-        };
+                petId: this.currentPet.id,
+                bmiStatus: this.bmiStatus || 0,
+                date: new Date().toISOString().split('T')[0]
+            };
 
-        console.log('Payload enviado al backend:', payload); // 👈 Aquí lo ves en la consola
+            console.log('=== GENERATING REPORT ===');
+            console.log('Current Pet:', this.currentPet);
+            console.log('BMI Status:', this.bmiStatus);
+            console.log('Payload enviado al backend:', payload);
 
-        const token = localStorage.getItem('authToken');
-        const response = await fetch('/api/reports', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(payload)
-        });
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/reports', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
 
             if (response.ok) {
                 const report = await response.json();
+                console.log('Report created successfully:', report);
                 this.showSuccess('Health report generated successfully!');
                 
                 // Navigate to reports page
                 window.navbarComponent.navigateTo('reports');
                 
-                // Refresh reports list
-                if (window.reportsComponent) {
-                    window.reportsComponent.loadReports();
-                }
+                // Refresh reports list after a short delay
+                setTimeout(() => {
+                    if (window.reportsComponent) {
+                        console.log('Reloading reports...');
+                        window.reportsComponent.loadReports();
+                    }
+                }, 500);
             } else {
-                const result = await response.json();
-                this.showError(result.message || 'Failed to generate report');
+                const errorText = await response.text();
+                console.error('Response not ok:', response.status, errorText);
+                
+                try {
+                    const result = JSON.parse(errorText);
+                    this.showError(result.detail || result.message || 'Failed to generate report');
+                } catch (e) {
+                    this.showError(`Server error: ${response.status} - ${errorText}`);
+                }
             }
         } catch (error) {
             console.error('Report generation error:', error);
@@ -455,12 +479,12 @@ class Dashboard {
 
     showError(message) {
         console.error('Error:', message);
-        // Implement toast notifications here
+        alert('Error: ' + message); // Temporal - reemplazar con toast notifications
     }
 
     showSuccess(message) {
         console.log('Success:', message);
-        // Implement toast notifications here
+        alert('Success: ' + message); // Temporal - reemplazar con toast notifications
     }
 }
 
