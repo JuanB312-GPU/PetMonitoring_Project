@@ -6,7 +6,18 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --setupFilesAfterEnv=./pruebas/unitarias/frontend/setup.js",
+    "test:verbose": "jest --setupFilesAfterEnv=./pruebas/unitarias/frontend/setup.js --verbose",
+    "test:watch": "jest --watch --setupFilesAfterEnv=./pruebas/unitarias/frontend/setup.js"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": [
+      "./pruebas/unitarias/frontend/setup.js"
+    ],
+    "testMatch": [
+      "**/pruebas/unitarias/frontend/**/*.js"
+    ]
   },
   "keywords": [
     "pet",
@@ -18,11 +29,15 @@
   "author": "PetCare Monitor Team",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
     "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
-    "pg": "^8.11.3",
-    "dotenv": "^16.3.1"
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "jest": "^30.0.5",
+    "jest-environment-jsdom": "^30.0.5"
   }
 }
