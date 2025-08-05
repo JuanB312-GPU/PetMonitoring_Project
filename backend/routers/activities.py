@@ -3,6 +3,7 @@ from sqlalchemy.orm.session import Session
 from ..config.database import get_db
 from ..schemas.activity import Activity, Feeding, ActivityCreate, FeedingCreate
 from ..services.activity_service import ActivityService
+from ..services.pet_service import PetService
 from typing import List
 
 router = APIRouter(tags=["activities"])
@@ -23,6 +24,8 @@ def get_feedings(db: Session = Depends(get_db)):
 
 @router.post("/api/activities")
 def create_pet_activity(data: ActivityCreate, db: Session = Depends(get_db)):
+    if not PetService.pet_exists(db, data.pet_id):
+        raise HTTPException(status_code=404, detail="Pet not found")
     try:
         ActivityService.create_pet_activity(db, data)
         return {"message": "Pet activity created successfully"}
@@ -31,6 +34,8 @@ def create_pet_activity(data: ActivityCreate, db: Session = Depends(get_db)):
 
 @router.post("/api/foods")
 def create_pet_feeding(data: FeedingCreate, db: Session = Depends(get_db)):
+    if not PetService.pet_exists(db, data.pet_id):
+        raise HTTPException(status_code=404, detail="Pet not found")
     try:
         ActivityService.create_pet_feeding(db, data)
         return {"message": "Pet feeding created successfully"}
@@ -39,10 +44,17 @@ def create_pet_feeding(data: FeedingCreate, db: Session = Depends(get_db)):
 
 @router.get("/api/activities/pet/{pet_id}")
 def get_activities_by_pet(pet_id: int, db: Session = Depends(get_db)):
+    if not PetService.pet_exists(db, pet_id):
+        raise HTTPException(status_code=404, detail="Pet not found")
+        
     activities = ActivityService.get_activities_by_pet(db, pet_id)
     return [{"name": activity[0], "frequency": activity[1]} for activity in activities]
 
 @router.get("/api/foods/pet/{pet_id}")
 def get_feedings_by_pet(pet_id: int, db: Session = Depends(get_db)):
+
+    if not PetService.pet_exists(db, pet_id):
+        raise HTTPException(status_code=404, detail="Pet not found")
+
     feedings = ActivityService.get_feedings_by_pet(db, pet_id)
     return [{"name": feeding[0], "frequency": feeding[1]} for feeding in feedings]

@@ -46,3 +46,4 @@ class ActivityService:
     @staticmethod
     def get_feedings(db: Session):
         return ActivityRepository.get_feedings(db)
+    

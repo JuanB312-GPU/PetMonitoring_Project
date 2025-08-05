@@ -2,6 +2,7 @@ from sqlalchemy.orm.session import Session
 from fastapi import HTTPException
 from ..repositories.pet_repository import PetRepository
 from ..repositories.medical_repository import MedicalRepository
+from ..services.user_service import UserService
 from ..schemas.pet import PetCreate
 from ..models.pet import Pet
 from ..models.relationships import Pet_medical_condition, Pet_vaccine
@@ -11,6 +12,11 @@ class PetService:
     @staticmethod
     def create_pet(db: Session, pet_data: PetCreate):
         # VALIDACIÓN CRÍTICA: Verificar si la mascota ya existe
+       # Validar que el usuario existe
+        user_service = UserService.get_user_by_id(db, pet_data.user_id)
+        if not user_service:
+            raise HTTPException(status_code=404, detail="User not found")
+
         existing_pet = PetRepository.get_pet_by_name_user(db, pet_data.name, pet_data.user_id)
         if existing_pet:
             raise HTTPException(status_code=409, detail="Pet with this name already exists")
@@ -55,6 +61,7 @@ class PetService:
 
     @staticmethod
     def get_user_pets(db: Session, user_id: int):
+
         pets = PetRepository.get_user_pets(db, user_id)
         
         if not pets:
@@ -85,3 +92,7 @@ class PetService:
             })
 
         return result
+    
+    @staticmethod
+    def pet_exists(db: Session, pet_id: int) -> bool:
+        return PetRepository.get_pet_by_id(db, pet_id) is not None

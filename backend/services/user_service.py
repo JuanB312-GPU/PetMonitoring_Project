@@ -11,16 +11,17 @@ class UserService:
         # Check if user with email already exists
         existing_user = UserRepository.get_by_email(db, user_data.email)
         if existing_user:
-            raise HTTPException(status_code=400, detail="A user with this email already exists")
+            raise HTTPException(status_code=409, detail="A user with this email already exists")
         
         # Check if user with phone already exists
         existing_user_phone = UserRepository.get_by_phone(db, user_data.phone)
         if existing_user_phone:
-            raise HTTPException(status_code=400, detail="A user with this phone number already exists")
+            raise HTTPException(status_code=409, detail="A user with this phone number already exists")
         
-        # Check if passwords match
-        if user_data.password != user_data.confirmPassword:
-            raise HTTPException(status_code=400, detail="Passwords do not match")
+        # Check if user with name already exists
+        existing_user_name = UserRepository.get_by_name(db, user_data.name) 
+        if existing_user_name:
+            raise HTTPException(status_code=409, detail="A user with this name already exists")
         
         # Create new user
         user = User(
@@ -49,3 +50,9 @@ class UserService:
     @staticmethod
     def get_user_by_email(db: Session, email: str):
         return UserRepository.get_by_email(db, email)
+    
+    @staticmethod
+    def get_user_by_id(db: Session, user_id: int):
+        user = UserRepository.get_user_by_id(db, user_id)
+        return user
+

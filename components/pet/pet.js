@@ -123,8 +123,8 @@ class Pet {
             if (response.ok) {
                 this.hidePetModal();
                 this.showSuccess('Pet registered successfully!');
-                // Recargar la lista completa de mascotas después de un pequeño delay
-                // para asegurar que la transacción de base de datos se complete
+                // Reload the complete pet list after a short delay
+                // to ensure the database transaction is completed
                 setTimeout(() => {
                     if (window.app && window.app.loadUserPets) {
                         window.app.loadUserPets();

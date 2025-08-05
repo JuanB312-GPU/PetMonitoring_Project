@@ -23,7 +23,7 @@ router = APIRouter(tags=["medical"])
 def get_conditions(db: Session = Depends(get_db)):
     conditions = MedicalService.get_medical_conditions(db)
     if not conditions:
-        raise HTTPException(status_code=404, detail="No conditions found")
+        raise HTTPException(status_code=404, detail="No medical conditions found")
     return conditions
 
 @router.get("/vaccines", response_model=List[VaccineOut])

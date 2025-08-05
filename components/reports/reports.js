@@ -17,7 +17,7 @@ class Reports {
             const userData = JSON.parse(localStorage.getItem('userData'));
             console.log('Loading reports for user:', userData.user_id);
             
-            // Usar URL relativa para evitar problemas de CORS
+            // Use relative URL to avoid CORS issues
             const response = await fetch(`/api/reports/${userData.user_id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -32,7 +32,7 @@ class Reports {
                 this.renderReports();
             } else {
                 console.error('Failed to load reports:', response.status);
-                // Manejar como lista vacía si no hay reportes
+                // Handle as empty list if there are no reports
                 this.reports = [];
                 this.renderReports();
             }
@@ -46,10 +46,10 @@ class Reports {
     renderReports() {
     const reportsGrid = document.getElementById('reports-grid');
     
-    // Si no hay reportes y no hay mascotas registradas, crear datos de muestra para demostración
+    // If there are no reports and no pets registered, create sample data for demonstration
     if (this.reports.length === 0) {
         const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-        // Solo mostrar datos de muestra si el usuario está logueado
+        // Only show sample data if the user is logged in
         if (userData.user_id) {
             this.reports = this.generateSampleReports();
         }
@@ -98,7 +98,7 @@ class Reports {
     }
 
     generateSampleReports() {
-        // Generar reportes de muestra para demostración
+        // Generate sample reports for demonstration
         return [
             {
                 id: 'sample-1',
@@ -132,7 +132,7 @@ class Reports {
         console.log('Generating HTML for report:', report);
         
         try {
-            // Procesar datos del reporte desde el backend
+            // Process report data from the backend
             const processedData = this.processReportData(report);
             console.log('Processed data:', processedData);
             
@@ -189,7 +189,7 @@ class Reports {
         // Helper for insights
         const insightsHTML = processedData.insights.map(i => `<li>${i}</li>`).join('');
 
-        // Timeline (básico por ahora)
+        // Timeline (basic for now)
         const timelineHTML = `
             <div class="timeline-item low">
                 <div class="timeline-icon">📋</div>
@@ -336,14 +336,14 @@ class Reports {
     }
 
     processReportData(report) {
-        // Calcular BMI y estado de salud basado en peso y altura
+        // Calculate BMI and health status based on weight and height
         const bmi = this.calculateBMI(report.pet_weight, report.pet_height);
         const bmiStatus = this.getBMIStatus(bmi, report.pet_species);
         
-        // Generar recomendaciones basadas en los datos disponibles
+        // Generate recommendations based on available data
         const recommendations = this.generateRecommendations(report, bmi);
         
-        // Generar insights basados en los datos
+        // Generate insights based on the data
         const insights = this.generateInsights(report, bmi);
         
         return {
@@ -361,7 +361,7 @@ class Reports {
 
     calculateBMI(weight, height) {
         if (!weight || !height) return null;
-        // BMI = peso(kg) / (altura(m))^2
+        // BMI = weight(kg) / (height(m))^2
         const heightInMeters = height / 100;
         return (weight / (heightInMeters * heightInMeters)).toFixed(1);
     }
