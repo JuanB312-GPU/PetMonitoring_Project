@@ -1,0 +1,10 @@
+{
+    "reportPrivateImportUsage": false,
+    "reportOptionalCall": false,
+    "reportGeneralTypeIssues": false,
+    "exclude": [
+        "**/__pycache__",
+        "**/node_modules"
+    ],
+    "python.analysis.typeCheckingMode": "basic"
+}

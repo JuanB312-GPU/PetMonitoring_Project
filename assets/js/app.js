@@ -47,20 +47,35 @@ class App {
             const token = localStorage.getItem('authToken');
 
             const userData = JSON.parse(localStorage.getItem('userData'));
+            console.log('Loading pets for user:', userData.user_id);
+            
             const response = await fetch(`/api/pets?user_id=${userData.user_id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
 
+            console.log('Response status:', response.status);
+            
             if (response.ok) {
                 const pets = await response.json();
+                console.log('Pets loaded:', pets);
                 this.renderUserPets(pets);
             } else {
-                console.error('Failed to load pets');
+                console.error('Failed to load pets, status:', response.status);
+                // Si no es un error 404, mostrar el error
+                if (response.status !== 404) {
+                    const errorData = await response.json();
+                    console.error('Error data:', errorData);
+                } else {
+                    // Para 404, simplemente renderizar lista vacía
+                    this.renderUserPets([]);
+                }
             }
         } catch (error) {
             console.error('Error loading pets:', error);
+            // Renderizar lista vacía en caso de error
+            this.renderUserPets([]);
         }
     }
 

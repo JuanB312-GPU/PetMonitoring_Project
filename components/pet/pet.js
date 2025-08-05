@@ -122,9 +122,14 @@ class Pet {
 
             if (response.ok) {
                 this.hidePetModal();
-                this.addPetCard(result.pet);
-                window.navbarComponent.addPet(result.pet);
                 this.showSuccess('Pet registered successfully!');
+                // Recargar la lista completa de mascotas después de un pequeño delay
+                // para asegurar que la transacción de base de datos se complete
+                setTimeout(() => {
+                    if (window.app && window.app.loadUserPets) {
+                        window.app.loadUserPets();
+                    }
+                }, 500); // 500ms delay
             } else {
                 this.showError(result.message || 'Failed to register pet');
             }
