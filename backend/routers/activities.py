@@ -26,6 +26,8 @@ def get_feedings(db: Session = Depends(get_db)):
 def create_pet_activity(data: ActivityCreate, db: Session = Depends(get_db)):
     if not PetService.pet_exists(db, data.pet_id):
         raise HTTPException(status_code=404, detail="Pet not found")
+    if not ActivityService.activity_exists(db, data.activity_id):
+        raise HTTPException(status_code=404, detail="Activity not found")
     try:
         ActivityService.create_pet_activity(db, data)
         return {"message": "Pet activity created successfully"}

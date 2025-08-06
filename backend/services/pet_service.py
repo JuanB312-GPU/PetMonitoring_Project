@@ -11,20 +11,20 @@ class PetService:
 
     @staticmethod
     def create_pet(db: Session, pet_data: PetCreate):
-        # VALIDACIÓN CRÍTICA: Verificar si la mascota ya existe
-       # Validar que el usuario existe
+       # Validate that the user exists
         user_service = UserService.get_user_by_id(db, pet_data.user_id)
         if not user_service:
             raise HTTPException(status_code=404, detail="User not found")
 
+        # CRITICAL VALIDATION: Check if the pet already exists
         existing_pet = PetRepository.get_pet_by_name_user(db, pet_data.name, pet_data.user_id)
         if existing_pet:
             raise HTTPException(status_code=409, detail="Pet with this name already exists")
 
-        # Calcular edad usando la función estática del modelo original
+        # Calculate age using the static function from the original model
         age = Pet.calculate_age(pet_data.birthdate)
         
-        # Crear pet exactamente como en el original
+        # Create pet exactly as in the original
         pet = Pet(
             name=pet_data.name,
             age=age,  # type: ignore
@@ -36,10 +36,10 @@ class PetService:
             user_id=pet_data.user_id  # type: ignore
         )
         
-        # Guardar pet
+        # Save pet
         pet = PetRepository.create(db, pet)
         
-        # Crear condiciones médicas (EXACTO al original)
+        # Create medical conditions (EXACT as in the original)
         for condition_id in pet_data.conditions:
             pet_condition = Pet_medical_condition(
                 pet_id=pet.pet_id,  # type: ignore
@@ -47,7 +47,7 @@ class PetService:
             )
             db.add(pet_condition)
         
-        # Crear vacunas (EXACTO al original)
+        # Create vaccines (EXACT as in the original)
         for vaccine_id in pet_data.vaccines:
             pet_vaccine = Pet_vaccine(
                 pet_id=pet.pet_id,  # type: ignore
@@ -65,12 +65,12 @@ class PetService:
         pets = PetRepository.get_user_pets(db, user_id)
         
         if not pets:
-            # Devolver lista vacía en lugar de lanzar excepción
+            # Return empty list instead of raising exception
             return []
 
         result = []
         for pet in pets:
-            # Obtener información exactamente como en el original
+            # Get information exactly as in the original
             species = PetRepository.get_species_by_id(db, pet.species_id)  # type: ignore
             breed = PetRepository.get_breed_by_id(db, pet.breed_id)  # type: ignore
             conditions = MedicalRepository.get_conditions_by_pet(db, pet.pet_id)  # type: ignore

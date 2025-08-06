@@ -22,6 +22,10 @@ class ActivityService:
             daily_meal_frequency=feeding_data.frequency
         )
         return ActivityRepository.create_pet_feeding(db, pet_feeding)
+    
+    @staticmethod
+    def activity_exists(db: Session, activity_id: int):
+        return ActivityRepository.get_activity_by_id(db, activity_id) is not None
 
     @staticmethod
     def get_activities_by_pet(db: Session, pet_id: int):
