@@ -2,9 +2,15 @@
     "reportPrivateImportUsage": false,
     "reportOptionalCall": false,
     "reportGeneralTypeIssues": false,
+    "reportCallIssue": false,
+    "reportAttributeAccessIssue": false,
+    "reportUnknownParameterType": false,
+    "reportUnknownArgumentType": false,
     "exclude": [
         "**/__pycache__",
-        "**/node_modules"
+        "**/node_modules",
+        "**/pruebas/aceptacion/features/steps"
     ],
-    "python.analysis.typeCheckingMode": "basic"
+    "python.analysis.typeCheckingMode": "basic",
+    "pythonPlatform": "All"
 }

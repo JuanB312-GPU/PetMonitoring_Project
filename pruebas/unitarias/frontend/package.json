@@ -1,0 +1,37 @@
+{
+  "name": "petcare-monitor-tests",
+  "version": "1.0.0",
+  "description": "Frontend unit tests for PetCare Monitor",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:verbose": "jest --verbose"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "jest-environment-jsdom": "^29.0.0",
+    "@jest/globals": "^29.0.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "testMatch": [
+      "**/components/**/*.test.js",
+      "**/components/**/test_*.js"
+    ],
+    "collectCoverageFrom": [
+      "../../../components/**/*.js",
+      "../../../assets/js/**/*.js",
+      "!**/node_modules/**"
+    ],
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/setup.js"
+    ]
+  }
+}

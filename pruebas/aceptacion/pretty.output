@@ -1,0 +1,19 @@
+Feature: Health Report Generation # features/health_reports.feature:1
+  As a pet owner
+  I want to generate health reports for my pets
+  So that I can share them with veterinarians and track progress
+  Background:   # features/health_reports.feature:6
+
+  Scenario: Successfully generate health report              # features/health_reports.feature:11
+    Given the PetCare Monitor application is running         # features/steps/user_registration_steps.py:15
+    And I am logged in as "juan.perez@email.com"             # features/steps/user_authentication_steps.py:66
+    And I have a pet named "Buddy" with complete health data # features/steps/health_reports_navigation_steps.py:21
+    Given I am on the "My Pets" page                         # features/steps/health_reports_navigation_steps.py:80
+    And I have selected pet "Buddy"                          # features/steps/health_reports_navigation_steps.py:107
+    When I click "Generate Health Report"                    # features/steps/health_reports_navigation_steps.py:119
+    Then I should see a health report being generated        # features/steps/health_reports_navigation_steps.py:212
+    And the report should include current health metrics     # features/steps/health_reports_navigation_steps.py:225
+    And the report should include BMI, BCS, and MER values   # features/steps/health_reports_navigation_steps.py:230
+    And the report should include medical history            # features/steps/health_reports_navigation_steps.py:243
+    And the report should include vaccination records        # features/steps/health_reports_navigation_steps.py:248
+    And the report should include recent activities          # features/steps/health_reports_navigation_steps.py:253
