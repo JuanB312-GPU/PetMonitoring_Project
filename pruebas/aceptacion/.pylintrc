@@ -1,0 +1,21 @@
+[MESSAGES CONTROL]
+# Disable specific warnings for behave step decorators
+disable=
+    # Disable call-issue warnings for behave decorators
+    E1102,
+    # Disable attribute access warnings
+    E1101,
+    # Disable unknown argument warnings
+    E1120,
+    # Disable redefined function warnings (common in BDD)
+    W0221,
+    W0613,
+    W0621
+    
+[DESIGN]
+# Don't warn about too many arguments in BDD step functions
+max-args=10
+
+[FORMAT]
+# Allow longer lines for BDD step descriptions
+max-line-length=120

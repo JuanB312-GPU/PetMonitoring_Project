@@ -1,0 +1,251 @@
+# PRUEBAS DE ACEPTACIÓN - PETCARE MONITOR
+# Basadas en las historias de usuario y funcionalidades del sistema
+
+================================================================================
+HISTORIA DE USUARIO 1: REGISTRO DE USUARIO
+================================================================================
+
+Feature: Registro de nuevo usuario en el sistema
+
+  Scenario: Registro exitoso de usuario con datos válidos
+    GIVEN el usuario está en la página de registro
+    WHEN el usuario ingresa nombre "Juan Pérez", email "juan.perez@email.com", teléfono "3001234567" y contraseña "Password123!"
+    AND el usuario confirma la contraseña "Password123!"
+    AND el usuario hace clic en el botón de registro
+    THEN el sistema debe crear la cuenta del usuario exitosamente
+    AND el usuario debe ser redirigido al dashboard principal
+    AND debe aparecer el mensaje "Welcome new pet lover, Juan Pérez!"
+
+  Scenario: Registro fallido con email duplicado
+    GIVEN existe un usuario registrado con email "juan.perez@email.com"
+    AND el usuario está en la página de registro
+    WHEN el usuario intenta registrarse con el mismo email "juan.perez@email.com"
+    THEN el sistema debe mostrar el error "Email already registered"
+    AND el usuario debe permanecer en la página de registro
+
+  Scenario: Registro fallido con contraseñas que no coinciden
+    GIVEN el usuario está en la página de registro
+    WHEN el usuario ingresa contraseña "Password123!" y confirmación "Password456!"
+    AND el usuario hace clic en el botón de registro
+    THEN el sistema debe mostrar el error "Passwords do not match"
+    AND el usuario debe permanecer en la página de registro
+
+================================================================================
+HISTORIA DE USUARIO 2: AUTENTICACIÓN DE USUARIO
+================================================================================
+
+Feature: Inicio de sesión de usuario existente
+
+  Scenario: Login exitoso con credenciales válidas
+    GIVEN existe un usuario registrado con email "juan.perez@email.com" y contraseña "Password123!"
+    AND el usuario está en la página de login
+    WHEN el usuario ingresa email "juan.perez@email.com" y contraseña "Password123!"
+    AND el usuario hace clic en el botón de login
+    THEN el sistema debe autenticar al usuario exitosamente
+    AND el usuario debe ser redirigido al dashboard principal
+    AND debe aparecer el mensaje "Welcome back, Juan Pérez!"
+
+  Scenario: Login fallido con credenciales inválidas
+    GIVEN el usuario está en la página de login
+    WHEN el usuario ingresa email "usuario@email.com" y contraseña "contraseñaIncorrecta"
+    AND el usuario hace clic en el botón de login
+    THEN el sistema debe mostrar el error "Invalid credentials"
+    AND el usuario debe permanecer en la página de login
+
+================================================================================
+HISTORIA DE USUARIO 3: REGISTRO DE MASCOTA
+================================================================================
+
+Feature: Registro de nueva mascota en el sistema
+
+  Scenario: Registro exitoso de mascota con datos completos
+    GIVEN el usuario "Juan Pérez" está autenticado en el sistema
+    AND el usuario está en el dashboard principal
+    WHEN el usuario hace clic en "Add New Pet"
+    AND el usuario completa el formulario con:
+      | Campo      | Valor           |
+      | Nombre     | Buddy           |
+      | Especie    | Dog             |
+      | Raza       | Golden Retriever|
+      | Nacimiento | 2020-05-15      |
+      | Altura     | 55              |
+      | Peso       | 25.5            |
+      | Condiciones| Allergy         |
+      | Vacunas    | Rabies          |
+    AND el usuario hace clic en "Register Pet"
+    THEN el sistema debe crear el perfil de la mascota exitosamente
+    AND debe aparecer la nueva tarjeta de mascota "Buddy" en el dashboard
+    AND la tarjeta debe mostrar la información básica de la mascota
+
+  Scenario: Registro fallido con nombre de mascota duplicado
+    GIVEN el usuario "Juan Pérez" ya tiene una mascota registrada con nombre "Buddy"
+    WHEN el usuario intenta registrar otra mascota con el mismo nombre "Buddy"
+    THEN el sistema debe mostrar el error "Pet with this name already exists"
+    AND la mascota no debe ser registrada
+
+  Scenario: Registro fallido con datos incompletos
+    GIVEN el usuario está en el formulario de registro de mascota
+    WHEN el usuario no selecciona una especie válida
+    AND el usuario hace clic en "Register Pet"
+    THEN el sistema debe mostrar el error "Please select a species"
+    AND la mascota no debe ser registrada
+
+================================================================================
+HISTORIA DE USUARIO 4: MONITOREO DE SALUD DE MASCOTA
+================================================================================
+
+Feature: Visualización de métricas de salud de mascota
+
+  Scenario: Visualización exitosa de métricas de salud
+    GIVEN el usuario tiene una mascota registrada "Buddy" con peso 25.5 kg y altura 55 cm
+    AND el usuario está en el dashboard
+    WHEN el usuario selecciona la mascota "Buddy" del selector
+    AND el usuario navega a la página Dashboard
+    THEN el sistema debe mostrar las métricas calculadas:
+      | Métrica | Valor Esperado |
+      | BMI     | 8.42          |
+      | BCS     | Normal        |
+      | MER     | 1250 kcal/day |
+    AND debe mostrar la información básica de "Buddy"
+
+  Scenario: Acceso a historial médico de mascota
+    GIVEN el usuario tiene una mascota "Buddy" con condiciones médicas "Allergy"
+    AND el usuario está viendo el dashboard de "Buddy"
+    WHEN el usuario hace clic en "View Health History"
+    THEN el sistema debe mostrar la página "My Pets"
+    AND debe mostrar el historial médico con la condición "Allergy"
+    AND debe mostrar las vacunas aplicadas "Rabies"
+
+================================================================================
+HISTORIA DE USUARIO 5: REGISTRO DE ACTIVIDADES
+================================================================================
+
+Feature: Registro de actividades para mascotas
+
+  Scenario: Registro exitoso de actividad física
+    GIVEN el usuario tiene una mascota registrada "Buddy"
+    AND el usuario está en la tarjeta de la mascota
+    WHEN el usuario hace clic en "Add Activity"
+    AND el usuario selecciona actividad "Walking" con frecuencia "Daily"
+    AND el usuario hace clic en enviar
+    THEN el sistema debe registrar la actividad exitosamente
+    AND debe aparecer el mensaje "Activity added successfully!"
+    AND el modal de actividad debe cerrarse
+
+  Scenario: Registro exitoso de alimentación
+    GIVEN el usuario tiene una mascota registrada "Buddy"
+    AND el usuario está en la tarjeta de la mascota
+    WHEN el usuario hace clic en "Add Food"
+    AND el usuario selecciona alimento "Dry Food" con frecuencia "Twice daily"
+    AND el usuario hace clic en enviar
+    THEN el sistema debe registrar la alimentación exitosamente
+    AND debe aparecer el mensaje "Food added successfully!"
+    AND el modal de alimentación debe cerrarse
+
+================================================================================
+HISTORIA DE USUARIO 6: GENERACIÓN DE REPORTES
+================================================================================
+
+Feature: Generación de reportes de salud
+
+  Scenario: Generación exitosa de reporte de salud
+    GIVEN el usuario tiene una mascota "Buddy" con historial completo
+    AND el usuario está en la página "My Pets"
+    WHEN el usuario hace clic en "Generate Health Report"
+    THEN el sistema debe generar un reporte de salud
+    AND el reporte debe incluir métricas de salud actuales
+    AND el reporte debe incluir historial de actividades
+    AND el reporte debe ser visible en la página "Reports"
+
+  Scenario: Visualización de reportes generados
+    GIVEN el usuario ha generado reportes de salud previamente
+    WHEN el usuario navega a la página "Reports"
+    THEN el sistema debe mostrar todos los reportes generados
+    AND cada reporte debe mostrar la fecha de creación
+    AND cada reporte debe mostrar el nombre de la mascota
+
+================================================================================
+HISTORIA DE USUARIO 7: NAVEGACIÓN DEL SISTEMA
+================================================================================
+
+Feature: Navegación entre páginas del sistema
+
+  Scenario: Navegación exitosa entre páginas principales
+    GIVEN el usuario está autenticado y en el dashboard
+    WHEN el usuario hace clic en "My Pets" en la navegación
+    THEN el sistema debe mostrar la página "My Pets"
+    AND debe mostrar todas las mascotas del usuario
+    WHEN el usuario hace clic en "Reports" en la navegación
+    THEN el sistema debe mostrar la página "Reports"
+    AND debe mostrar los reportes generados
+    WHEN el usuario hace clic en "Dashboard" en la navegación
+    THEN el sistema debe regresar al dashboard principal
+
+  Scenario: Cierre de sesión exitoso
+    GIVEN el usuario está autenticado en el sistema
+    WHEN el usuario hace clic en "Logout"
+    THEN el sistema debe cerrar la sesión del usuario
+    AND debe redirigir a la página principal para visitantes
+    AND debe mostrar las opciones "Log-in" y "Register"
+
+================================================================================
+HISTORIA DE USUARIO 8: VALIDACIÓN DE DATOS
+================================================================================
+
+Feature: Validación de integridad de datos
+
+  Scenario: Validación de especies y razas
+    GIVEN el usuario está registrando una nueva mascota
+    WHEN el usuario selecciona especie "Dog"
+    THEN el sistema debe cargar las razas disponibles para perros
+    AND debe incluir opciones como "Golden Retriever", "Labrador", "Bulldog"
+    WHEN el usuario selecciona una raza válida
+    THEN el sistema debe permitir continuar con el registro
+
+  Scenario: Validación de condiciones médicas y vacunas
+    GIVEN el usuario está en el formulario de registro de mascota
+    WHEN el usuario abre el selector de condiciones médicas
+    THEN el sistema debe mostrar condiciones disponibles como "Allergy", "Diabetes"
+    WHEN el usuario abre el selector de vacunas
+    THEN el sistema debe mostrar vacunas disponibles como "Rabies", "Distemper"
+
+================================================================================
+HISTORIA DE USUARIO 9: CÁLCULOS DE SALUD
+================================================================================
+
+Feature: Cálculos precisos de métricas de salud
+
+  Scenario: Cálculo correcto de BMI para perro
+    GIVEN una mascota perro con peso 25.5 kg y altura 55 cm
+    WHEN el sistema calcula el BMI
+    THEN el BMI debe ser aproximadamente 8.42
+    AND el estado debe ser "Normal" para ese rango de BMI
+
+  Scenario: Cálculo correcto de MER (Metabolizable Energy Requirement)
+    GIVEN una mascota adulta con peso 25.5 kg
+    WHEN el sistema calcula los requerimientos calóricos diarios
+    THEN el MER debe estar en el rango de 1200-1300 kcal/day
+    AND debe considerar la edad y nivel de actividad
+
+================================================================================
+HISTORIA DE USUARIO 10: GESTIÓN DE ERRORES
+================================================================================
+
+Feature: Manejo adecuado de errores del sistema
+
+  Scenario: Manejo de error de conexión a base de datos
+    GIVEN existe un problema de conectividad con la base de datos
+    WHEN el usuario intenta realizar cualquier operación
+    THEN el sistema debe mostrar un mensaje de error apropiado
+    AND debe sugerir intentar nuevamente más tarde
+
+  Scenario: Manejo de campos obligatorios vacíos
+    GIVEN el usuario está en cualquier formulario del sistema
+    WHEN el usuario intenta enviar el formulario con campos obligatorios vacíos
+    THEN el sistema debe resaltar los campos requeridos
+    AND debe mostrar mensajes de validación específicos
+    AND debe prevenir el envío del formulario
+
+================================================================================
+FIN DE PRUEBAS DE ACEPTACIÓN
+================================================================================
