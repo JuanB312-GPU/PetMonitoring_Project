@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm.session import Session
 from ..config.database import get_db
 from ..schemas.pet import PetCreate, PetOut, Species, Breed
@@ -18,13 +18,13 @@ def get_pets(user_id: int, db: Session = Depends(get_db)):
     pets = PetService.get_user_pets(db, user_id)
     return pets
 
-@router.post("")
+@router.post("",status_code=status.HTTP_201_CREATED)
 def create_pet(data: PetCreate, db: Session = Depends(get_db)):
     try:
         pet = PetService.create_pet(db, data)
         return {"message": "Pet created successfully", "pet_id": pet.pet_id}  # type: ignore
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException as http_exc:
+        raise http_exc  # Re-lanzar tal cual
 
 @router.get("/species", response_model=List[Species])
 def get_species(db: Session = Depends(get_db)):

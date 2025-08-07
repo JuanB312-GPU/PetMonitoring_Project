@@ -20,7 +20,7 @@ class UserRepository:
         db.add(user)
         db.commit()
         db.refresh(user)
-        return user
+        return UserRepository.get_by_email(db, user.email)
     
     @staticmethod
     def create(db: Session, user: User):

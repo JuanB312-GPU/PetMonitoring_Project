@@ -1,2 +1,0 @@
-python validate_framework.py
-python test_runner_robust.py

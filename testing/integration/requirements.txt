@@ -1,0 +1,8 @@
+# Requirements for integration testing
+pytest
+requests
+httpx
+fastapi
+uvicorn
+python-dotenv
+psycopg2-binary

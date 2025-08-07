@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm.session import Session
 from ..config.database import get_db
 from ..schemas.reports import PetHistory, ReportResponse
@@ -19,7 +19,7 @@ def options_reports(user_id: int):
     """Handle preflight requests for CORS"""
     return {}
 
-@router.post("")
+@router.post("", status_code=201)
 def create_report(data: PetHistory, db: Session = Depends(get_db)):
     try:
         logger.info(f"Creating report for pet {data.petId} with BMI {data.bmiStatus}")

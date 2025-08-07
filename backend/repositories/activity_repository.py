@@ -26,6 +26,10 @@ class ActivityRepository:
         )
     
     @staticmethod
+    def get_feeding_by_id(db: Session, feeding_id: int):
+        return db.query(Feeding).filter(Feeding.feeding_id == feeding_id).first()
+
+    @staticmethod
     def get_feedings_by_pet(db: Session, pet_id: int):
         return (
             db.query(Feeding.name, Pet_feeding.daily_meal_frequency)

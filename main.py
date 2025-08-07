@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -50,18 +50,30 @@ def serve_index():
 # Para mantener compatibilidad con las rutas del frontend sin prefijo /api
 @app.get("/species")
 def get_species_legacy(db: Session = Depends(get_db)):
+
+    if not MedicalService.get_species(db):
+        raise HTTPException(status_code=404, detail="No species found")
     return MedicalService.get_species(db)
 
 @app.get("/breeds/{species_id}")
 def get_breeds_legacy(species_id: int, db: Session = Depends(get_db)):
+
+    if not MedicalService.get_breeds_by_species(db, species_id):
+        raise HTTPException(status_code=404, detail="No breeds found for this species")
     return MedicalService.get_breeds_by_species(db, species_id)
 
 @app.get("/conditions")
 def get_conditions_legacy(db: Session = Depends(get_db)):
+
+    if not MedicalService.get_medical_conditions(db):
+        raise HTTPException(status_code=404, detail="No medical conditions found")
     return MedicalService.get_medical_conditions(db)
 
 @app.get("/vaccines")
 def get_vaccines_legacy(db: Session = Depends(get_db)):
+
+    if not MedicalService.get_vaccines(db):
+        raise HTTPException(status_code=404, detail="No vaccines found")
     return MedicalService.get_vaccines(db)
 
 @app.get("/activities")

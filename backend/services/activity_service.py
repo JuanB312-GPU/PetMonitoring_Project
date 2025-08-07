@@ -30,6 +30,10 @@ class ActivityService:
     @staticmethod
     def get_activities_by_pet(db: Session, pet_id: int):
         return ActivityRepository.get_activities_by_pet(db, pet_id)
+    
+    @staticmethod
+    def feeding_exists(db: Session, feeding_id: int):
+        return ActivityRepository.get_feeding_by_id(db, feeding_id) is not None
 
     @staticmethod
     def get_feedings_by_pet(db: Session, pet_id: int):
