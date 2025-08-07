@@ -1,0 +1,341 @@
+classDiagram
+    %% Core Domain Models
+    class User {
+        +int user_id
+        +String name
+        +String email
+        +String phone_number
+        +String password_hash
+        +password_to_hash(password)
+        +verify_password(password) bool
+    }
+
+    class Pet {
+        +int pet_id
+        +String name
+        +Numeric age
+        +Numeric height
+        +Numeric weight
+        +Date date_of_birth
+        +int breed_id
+        +int species_id
+        +int user_id
+        +calculate_age(birthdate) int
+    }
+
+    class Species {
+        +int species_id
+        +String name
+    }
+
+    class Breed {
+        +int breed_id
+        +int species_id
+        +String name
+    }
+
+    class Medical_condition {
+        +int mc_id
+        +String name
+        +String description
+        +String recommendations
+    }
+
+    class Vaccine {
+        +int vaccine_id
+        +String name
+        +Numeric recommended_age
+    }
+
+    class Activity {
+        +int activity_id
+        +String name
+        +String description
+    }
+
+    class Feeding {
+        +int feeding_id
+        +String name
+        +String description
+        +Numeric calories
+    }
+
+    %% Junction Tables
+    class Pet_medical_condition {
+        +int pet_id
+        +int mc_id
+    }
+
+    class Pet_vaccine {
+        +int pet_id
+        +int vaccine_id
+    }
+
+    class Pet_activity {
+        +int pet_id
+        +int activity_id
+        +int weekly_frequency_activity
+    }
+
+    class Pet_feeding {
+        +int pet_id
+        +int feeding_id
+        +int daily_meal_frequency
+    }
+
+    class Pet_history {
+        +int hr_id
+        +int pet_id
+        +Date date
+        +Numeric body_metric
+    }
+
+    %% Repository Layer
+    class UserRepository {
+        <<Repository>>
+        +get_by_name(db, name) User
+        +get_by_email(db, email) User
+        +get_by_phone(db, phone) User
+        +create_user(db, user) User
+    }
+
+    class PetRepository {
+        <<Repository>>
+        +create(db, pet) Pet
+        +get_by_user(db, user_id) List
+        +get_species(db) List
+        +get_breeds_by_species(db, species_id) List
+    }
+
+    class MedicalRepository {
+        <<Repository>>
+        +get_medical_conditions(db) List
+        +get_vaccines(db) List
+        +create_pet_medical_condition(db, pet_condition) bool
+        +create_pet_vaccine(db, pet_vaccine) bool
+    }
+
+    class ActivityRepository {
+        <<Repository>>
+        +get_activities(db) List
+        +get_feedings(db) List
+        +create_pet_activity(db, pet_activity) bool
+        +create_pet_feeding(db, pet_feeding) bool
+        +get_activities_by_pet(db, pet_id) List
+        +get_feedings_by_pet(db, pet_id) List
+    }
+
+    class ReportRepository {
+        <<Repository>>
+        +create_pet_history(db, pet_history) bool
+        +get_pet_reports_for_user(db, user_id) List
+    }
+
+    %% Service Layer
+    class UserService {
+        <<Service>>
+        +register_user(db, user_data) User
+        +authenticate_user(db, login_data) User
+        +create_user(db, user_data) User
+    }
+
+    class PetService {
+        <<Service>>
+        +create_pet(db, pet_data) Pet
+        +get_user_pets(db, user_id) List
+    }
+
+    class MedicalService {
+        <<Service>>
+        +get_species(db) List
+        +get_breeds_by_species(db, species_id) List
+        +get_medical_conditions(db) List
+        +get_vaccines(db) List
+    }
+
+    class ActivityService {
+        <<Service>>
+        +create_pet_activity(db, activity_data) bool
+        +create_pet_feeding(db, feeding_data) bool
+        +get_activities_by_pet(db, pet_id) List
+        +get_feedings_by_pet(db, pet_id) List
+        +get_all_activities(db) List
+        +get_all_feedings(db) List
+    }
+
+    class ReportService {
+        <<Service>>
+        +create_report(db, report_data) bool
+        +get_pet_reports_for_user(db, user_id) List
+    }
+
+    %% Frontend Components
+    class App {
+        <<Frontend>>
+        +loadUserPets()
+        +renderUserPets(pets)
+        +logout()
+        +showGuestContent()
+        +showUserContent(userData)
+    }
+
+    class Auth {
+        <<Frontend>>
+        +showAuthModal(mode)
+        +hideAuthModal()
+        +handleLogin(form)
+        +handleRegister(form)
+        +bindEvents()
+    }
+
+    class Navbar {
+        <<Frontend>>
+        +updateAuthState(userData)
+        +loadUserPets()
+        +updatePetSelector()
+        +selectPet(petId)
+        +navigateTo(page)
+    }
+
+    class PetComponent {
+        <<Frontend>>
+        +showPetModal()
+        +hidePetModal()
+        +handlePetRegistration(form)
+        +createPetCard(pet)
+        +showActivityModal(petId)
+        +showFoodModal(petId)
+        +handleActivityAdd(form)
+        +handleFoodAdd(form)
+        +loadMedicalConditions()
+        +loadVaccines()
+        +loadSpecies()
+        +loadActivities()
+        +loadFeedings()
+    }
+
+    class Dashboard {
+        <<Frontend>>
+        +updateDashboard(pet)
+        +calculateBMI(pet)
+        +calculateBCS(pet)
+        +calculateMER(pet)
+        +calculateDiseaseRisk(pet)
+        +updateMetrics(pet)
+    }
+
+    class Reports {
+        <<Frontend>>
+        +loadReports()
+        +renderReports()
+        +generateSampleReports()
+        +createReportCard(report)
+        +downloadReport(reportId)
+    }
+
+    %% Schema Classes
+    class UserCreate {
+        <<Schema>>
+        +String name
+        +String email
+        +String phone_number
+        +String password
+    }
+
+    class UserLogin {
+        <<Schema>>
+        +String email
+        +String password
+    }
+
+    class PetCreate {
+        <<Schema>>
+        +String name
+        +int user_id
+        +int species
+        +int breed
+        +Date birthdate
+        +float height
+        +float weight
+        +List conditions
+        +List vaccines
+    }
+
+    class ActivityCreate {
+        <<Schema>>
+        +int pet_id
+        +int activity_id
+        +int frequency
+    }
+
+    class FeedingCreate {
+        <<Schema>>
+        +int pet_id
+        +int feeding_id
+        +int frequency
+    }
+
+    class PetHistory {
+        <<Schema>>
+        +int petId
+        +float bmiStatus
+        +Date date
+    }
+
+    %% Utility Classes
+    class HealthMetrics {
+        <<Utility>>
+        +calculate_age(birthdate) int
+        +calculate_bmi(weight, height) float
+        +calculate_health_metrics(pet_data) dict
+    }
+
+    class AuthUtils {
+        <<Utility>>
+        +create_access_token(data) String
+        +verify_token(token) dict
+        +get_current_user(token) User
+    }
+
+    %% Database Relationships
+    User "1" --> "0..*" Pet
+    Species "1" --> "0..*" Breed
+    Species "1" --> "0..*" Pet
+    Breed "1" --> "0..*" Pet
+    Pet "1" --> "0..*" Pet_medical_condition
+    Pet "1" --> "0..*" Pet_vaccine
+    Pet "1" --> "0..*" Pet_activity
+    Pet "1" --> "0..*" Pet_feeding
+    Pet "1" --> "0..*" Pet_history
+    Medical_condition "1" --> "0..*" Pet_medical_condition
+    Vaccine "1" --> "0..*" Pet_vaccine
+    Activity "1" --> "0..*" Pet_activity
+    Feeding "1" --> "0..*" Pet_feeding
+
+    %% Service-Repository Dependencies
+    UserService --> UserRepository
+    PetService --> PetRepository
+    MedicalService --> MedicalRepository
+    ActivityService --> ActivityRepository
+    ReportService --> ReportRepository
+
+    %% Frontend-Backend Dependencies
+    Auth --> UserService
+    PetComponent --> PetService
+    PetComponent --> MedicalService
+    PetComponent --> ActivityService
+    Dashboard --> PetComponent
+    Reports --> ReportService
+    Navbar --> PetComponent
+
+    %% Schema Usage
+    Auth --> UserCreate
+    Auth --> UserLogin
+    PetComponent --> PetCreate
+    PetComponent --> ActivityCreate
+    PetComponent --> FeedingCreate
+    Reports --> PetHistory
+
+    %% Utility Usage
+    Dashboard --> HealthMetrics
+    Auth --> AuthUtils

@@ -1,0 +1,155 @@
+flowchart TD
+    %% === INICIO DEL SISTEMA ===
+    Start([Usuario accede al Sistema]) --> CheckAuth{¿Usuario autenticado?}
+    
+    %% === FLUJO DE AUTENTICACIÓN ===
+    CheckAuth -->|No| GuestView[Vista de Invitado]
+    GuestView --> AuthChoice{¿Desea autenticarse?}
+    AuthChoice -->|Sí| AuthModal[Modal de Autenticación]
+    AuthChoice -->|No| End1([Salir del Sistema])
+    
+    AuthModal --> LoginRegister{¿Login o Registro?}
+    LoginRegister -->|Login| LoginForm[Formulario de Login]
+    LoginRegister -->|Registro| RegisterForm[Formulario de Registro]
+    
+    %% === PROCESO DE REGISTRO ===
+    RegisterForm --> ValidateRegData{¿Datos válidos?}
+    ValidateRegData -->|No| RegError[Error de Validación]
+    RegError --> RegisterForm
+    ValidateRegData -->|Sí| CreateUser[Crear Usuario en BD]
+    CreateUser --> RegSuccess[Registro Exitoso]
+    RegSuccess --> LoginForm
+    
+    %% === PROCESO DE LOGIN ===
+    LoginForm --> ValidateLogin{¿Credenciales válidas?}
+    ValidateLogin -->|No| LoginError[Error de Login]
+    LoginError --> LoginForm
+    ValidateLogin -->|Sí| AuthSuccess[Autenticación Exitosa]
+    AuthSuccess --> SetToken[Establecer Token de Sesión]
+    SetToken --> UserView
+    
+    %% === FLUJO PRINCIPAL AUTENTICADO ===
+    CheckAuth -->|Sí| UserView[Vista de Usuario Autenticado]
+    UserView --> LoadUserPets[Cargar Mascotas del Usuario]
+    LoadUserPets --> HasPets{¿Tiene mascotas registradas?}
+    
+    %% === GESTIÓN DE MASCOTAS ===
+    HasPets -->|No| ShowRegisterPet[Mostrar opción de registrar mascota]
+    ShowRegisterPet --> UserChoicePet{¿Desea registrar mascota?}
+    UserChoicePet -->|No| Dashboard
+    UserChoicePet -->|Sí| PetModal[Modal de Registro de Mascota]
+    
+    HasPets -->|Sí| PetSelector[Selector de Mascotas]
+    PetSelector --> Dashboard[Dashboard Principal]
+    
+    %% === REGISTRO DE MASCOTA ===
+    PetModal --> LoadPetData[Cargar datos de especies/razas]
+    LoadPetData --> FillPetForm[Llenar formulario de mascota]
+    FillPetForm --> ValidatePetData{¿Datos válidos?}
+    ValidatePetData -->|No| PetError[Error en datos de mascota]
+    PetError --> FillPetForm
+    ValidatePetData -->|Sí| CreatePet[Crear Mascota en BD]
+    CreatePet --> PetSuccess[Mascota registrada]
+    PetSuccess --> RefreshPets[Actualizar lista de mascotas]
+    RefreshPets --> PetSelector
+    
+    %% === DASHBOARD Y NAVEGACIÓN ===
+    Dashboard --> NavChoice{¿Qué sección visitar?}
+    NavChoice -->|Dashboard| DashboardView[Vista Dashboard]
+    NavChoice -->|Mis Mascotas| PetsView[Vista de Mascotas]
+    NavChoice -->|Reportes| ReportsView[Vista de Reportes]
+    
+    %% === DASHBOARD PRINCIPAL ===
+    DashboardView --> CalculateMetrics[Calcular Métricas de Salud]
+    CalculateMetrics --> ShowHealthData[Mostrar datos de salud]
+    ShowHealthData --> DashboardActions{¿Qué acción realizar?}
+    
+    DashboardActions -->|Ver Historial| ViewHistory[Ver historial médico]
+    DashboardActions -->|Generar Reporte| GenerateReport[Generar reporte de salud]
+    DashboardActions -->|Agregar Actividad| ActivityModal[Modal de Actividad]
+    DashboardActions -->|Agregar Alimentación| FoodModal[Modal de Alimentación]
+    
+    %% === GESTIÓN DE ACTIVIDADES ===
+    ActivityModal --> LoadActivities[Cargar tipos de actividades]
+    LoadActivities --> FillActivityForm[Llenar formulario de actividad]
+    FillActivityForm --> ValidateActivity{¿Datos válidos?}
+    ValidateActivity -->|No| ActivityError[Error en actividad]
+    ActivityError --> FillActivityForm
+    ValidateActivity -->|Sí| CreateActivity[Registrar actividad]
+    CreateActivity --> ActivitySuccess[Actividad registrada]
+    
+    %% === GESTIÓN DE ALIMENTACIÓN ===
+    FoodModal --> LoadFoods[Cargar tipos de alimentos]
+    LoadFoods --> FillFoodForm[Llenar formulario de alimentación]
+    FillFoodForm --> ValidateFood{¿Datos válidos?}
+    ValidateFood -->|No| FoodError[Error en alimentación]
+    FoodError --> FillFoodForm
+    ValidateFood -->|Sí| CreateFeeding[Registrar alimentación]
+    CreateFeeding --> FeedingSuccess[Alimentación registrada]
+    
+    %% === VISTA DE MASCOTAS ===
+    PetsView --> ShowPetDetails[Mostrar detalles de mascota]
+    ShowPetDetails --> PetActions{¿Qué acción realizar?}
+    PetActions -->|Ver actividades| ShowActivities[Mostrar actividades]
+    PetActions -->|Ver alimentación| ShowFeedings[Mostrar alimentación]
+    PetActions -->|Cambiar mascota| PetSelector
+    
+    %% === GENERACIÓN DE REPORTES ===
+    GenerateReport --> CalculateBMI[Calcular BMI]
+    CalculateBMI --> CollectHealthData[Recopilar datos de salud]
+    CollectHealthData --> CreateHealthReport[Crear reporte de salud]
+    CreateHealthReport --> SaveReport[Guardar reporte en BD]
+    SaveReport --> ShowReportSuccess[Reporte generado exitosamente]
+    
+    %% === VISTA DE REPORTES ===
+    ReportsView --> LoadUserReports[Cargar reportes del usuario]
+    LoadUserReports --> HasReports{¿Existen reportes?}
+    HasReports -->|No| NoReports[No hay reportes disponibles]
+    HasReports -->|Sí| ShowReports[Mostrar lista de reportes]
+    ShowReports --> ReportActions{¿Qué hacer con reportes?}
+    ReportActions -->|Ver detalles| ShowReportDetails[Ver detalles del reporte]
+    ReportActions -->|Generar nuevo| GenerateReport
+    
+    %% === INFORMACIÓN MÉDICA ===
+    ViewHistory --> LoadMedicalData[Cargar datos médicos]
+    LoadMedicalData --> ShowConditions[Mostrar condiciones médicas]
+    ShowConditions --> ShowVaccines[Mostrar vacunas]
+    ShowVaccines --> MedicalActions{¿Qué acción médica?}
+    MedicalActions -->|Ver recomendaciones| ShowRecommendations[Mostrar recomendaciones]
+    MedicalActions -->|Actualizar datos| UpdateMedical[Actualizar información médica]
+    
+    %% === FINALIZACIÓN Y NAVEGACIÓN ===
+    ActivitySuccess --> Dashboard
+    FeedingSuccess --> Dashboard
+    ShowReportSuccess --> ReportsView
+    NoReports --> NavChoice
+    ShowReportDetails --> ReportsView
+    ShowRecommendations --> Dashboard
+    UpdateMedical --> Dashboard
+    ShowActivities --> PetsView
+    ShowFeedings --> PetsView
+    ViewHistory --> DashboardView
+    
+    %% === LOGOUT ===
+    Dashboard --> LogoutOption{¿Cerrar sesión?}
+    LogoutOption -->|No| NavChoice
+    LogoutOption -->|Sí| Logout[Cerrar Sesión]
+    Logout --> ClearAuth[Limpiar datos de autenticación]
+    ClearAuth --> GuestView
+    
+    %% === ESTILOS ===
+    classDef startEnd fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef process fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef decision fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef database fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
+    classDef error fill:#ffebee,stroke:#c62828,stroke-width:2px
+    classDef success fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef modal fill:#f1f8e9,stroke:#689f38,stroke-width:2px
+    
+    class Start,End1 startEnd
+    class CheckAuth,AuthChoice,LoginRegister,ValidateRegData,ValidateLogin,HasPets,UserChoicePet,ValidatePetData,NavChoice,DashboardActions,ValidateActivity,ValidateFood,PetActions,HasReports,ReportActions,MedicalActions,LogoutOption decision
+    class GuestView,UserView,Dashboard,DashboardView,PetsView,ReportsView process
+    class CreateUser,CreatePet,CreateActivity,CreateFeeding,SaveReport,LoadUserPets,LoadPetData,LoadActivities,LoadFoods,LoadUserReports,LoadMedicalData database
+    class RegError,LoginError,PetError,ActivityError,FoodError error
+    class RegSuccess,AuthSuccess,PetSuccess,ActivitySuccess,FeedingSuccess,ShowReportSuccess success
+    class AuthModal,PetModal,ActivityModal,FoodModal modal
