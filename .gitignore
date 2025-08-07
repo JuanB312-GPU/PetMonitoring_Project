@@ -12,4 +12,5 @@ models_legacy.py
 queries_legacy.py
 .vscode
 pruebas
+database
 
