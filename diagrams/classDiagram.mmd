@@ -97,20 +97,35 @@ classDiagram
         +get_by_email(db, email) User
         +get_by_phone(db, phone) User
         +create_user(db, user) User
+        +create(db, user) User
+        +get_user_by_id(db, user_id) User
     }
 
     class PetRepository {
         <<Repository>>
         +create(db, pet) Pet
-        +get_by_user(db, user_id) List
+        +get_user_pets(db, user_id) List
+        +get_pet_by_name_user(db, name, user_id) Pet
         +get_species(db) List
+        +get_species_by_id(db, species_id) Species
         +get_breeds_by_species(db, species_id) List
+        +get_breed_by_id(db, breed_id) Breed
+        +create_pet(db, pet) Pet
+        +get_pet_by_id(db, pet_id) Pet
     }
 
     class MedicalRepository {
         <<Repository>>
         +get_medical_conditions(db) List
         +get_vaccines(db) List
+        +get_condition_by_id(db, condition_id) Medical_condition
+        +get_vaccine_by_id(db, vaccine_id) Vaccine
+        +get_conditions_by_pet(db, pet_id) List
+        +get_vaccines_by_pet(db, pet_id) List
+        +get_species(db) List
+        +get_breeds_by_species(db, species_id) List
+        +get_species_by_id(db, species_id) Species
+        +get_breed_by_id(db, breed_id) Breed
         +create_pet_medical_condition(db, pet_condition) bool
         +create_pet_vaccine(db, pet_vaccine) bool
     }
@@ -119,30 +134,38 @@ classDiagram
         <<Repository>>
         +get_activities(db) List
         +get_feedings(db) List
+        +get_activity_by_id(db, activity_id) Activity
+        +get_activities_by_pet(db, pet_id) List
+        +get_feeding_by_id(db, feeding_id) Feeding
+        +get_feedings_by_pet(db, pet_id) List
         +create_pet_activity(db, pet_activity) bool
         +create_pet_feeding(db, pet_feeding) bool
-        +get_activities_by_pet(db, pet_id) List
-        +get_feedings_by_pet(db, pet_id) List
     }
 
     class ReportRepository {
         <<Repository>>
         +create_pet_history(db, pet_history) bool
         +get_pet_reports_for_user(db, user_id) List
+        +get_pet_history_by_id(db, history_id) Pet_history
+        +get_pet_history_by_pet(db, pet_id) List
     }
 
     %% Service Layer
     class UserService {
         <<Service>>
-        +register_user(db, user_data) User
-        +authenticate_user(db, login_data) User
         +create_user(db, user_data) User
+        +login_user(db, user_data) User
+        +get_user_by_email(db, email) User
+        +get_user_by_id(db, user_id) User
     }
 
     class PetService {
         <<Service>>
         +create_pet(db, pet_data) Pet
         +get_user_pets(db, user_id) List
+        +get_pet_by_id(db, pet_id) Pet
+        +get_species(db) List
+        +get_breeds_by_species(db, species_id) List
     }
 
     class MedicalService {
@@ -151,6 +174,8 @@ classDiagram
         +get_breeds_by_species(db, species_id) List
         +get_medical_conditions(db) List
         +get_vaccines(db) List
+        +create_pet_medical_condition(db, pet_id, condition_id) bool
+        +create_pet_vaccine(db, pet_id, vaccine_id) bool
     }
 
     class ActivityService {
@@ -167,6 +192,7 @@ classDiagram
         <<Service>>
         +create_report(db, report_data) bool
         +get_pet_reports_for_user(db, user_id) List
+        +generate_health_report(db, pet_id) dict
     }
 
     %% Frontend Components
@@ -177,6 +203,8 @@ classDiagram
         +logout()
         +showGuestContent()
         +showUserContent(userData)
+        +initializeApp()
+        +handlePageNavigation(page)
     }
 
     class Auth {
@@ -186,6 +214,9 @@ classDiagram
         +handleLogin(form)
         +handleRegister(form)
         +bindEvents()
+        +validateForm(formData) bool
+        +storeAuthToken(token)
+        +removeAuthToken()
     }
 
     class Navbar {
@@ -195,6 +226,8 @@ classDiagram
         +updatePetSelector()
         +selectPet(petId)
         +navigateTo(page)
+        +showUserMenu()
+        +hideUserMenu()
     }
 
     class PetComponent {
@@ -212,6 +245,8 @@ classDiagram
         +loadSpecies()
         +loadActivities()
         +loadFeedings()
+        +validatePetForm(formData) bool
+        +renderPetDetails(pet)
     }
 
     class Dashboard {
@@ -222,6 +257,8 @@ classDiagram
         +calculateMER(pet)
         +calculateDiseaseRisk(pet)
         +updateMetrics(pet)
+        +renderHealthMetrics(metrics)
+        +showHealthAlerts(alerts)
     }
 
     class Reports {
@@ -231,6 +268,8 @@ classDiagram
         +generateSampleReports()
         +createReportCard(report)
         +downloadReport(reportId)
+        +filterReports(criteria)
+        +exportReport(reportId, format)
     }
 
     %% Schema Classes
@@ -238,8 +277,17 @@ classDiagram
         <<Schema>>
         +String name
         +String email
-        +String phone_number
+        +String phone
         +String password
+        +String confirmPassword
+    }
+
+    class UserOut {
+        <<Schema>>
+        +int user_id
+        +String name
+        +String email
+        +String phone_number
     }
 
     class UserLogin {
@@ -254,6 +302,19 @@ classDiagram
         +int user_id
         +int species
         +int breed
+        +Date birthdate
+        +float height
+        +float weight
+        +List conditions
+        +List vaccines
+    }
+
+    class PetOut {
+        <<Schema>>
+        +int id
+        +String name
+        +String species
+        +String breed
         +Date birthdate
         +float height
         +float weight
@@ -292,50 +353,65 @@ classDiagram
 
     class AuthUtils {
         <<Utility>>
-        +create_access_token(data) String
-        +verify_token(token) dict
-        +get_current_user(token) User
+        +hash_password(password) String
+        +verify_password(password, hashed) bool
     }
 
-    %% Database Relationships
-    User "1" --> "0..*" Pet
-    Species "1" --> "0..*" Breed
-    Species "1" --> "0..*" Pet
-    Breed "1" --> "0..*" Pet
-    Pet "1" --> "0..*" Pet_medical_condition
-    Pet "1" --> "0..*" Pet_vaccine
-    Pet "1" --> "0..*" Pet_activity
-    Pet "1" --> "0..*" Pet_feeding
-    Pet "1" --> "0..*" Pet_history
-    Medical_condition "1" --> "0..*" Pet_medical_condition
-    Vaccine "1" --> "0..*" Pet_vaccine
-    Activity "1" --> "0..*" Pet_activity
-    Feeding "1" --> "0..*" Pet_feeding
+    %% Database Relationships (Entity relationships with cardinality)
+    User "1" *-- "0..*" Pet : owns
+    Species "1" --> "0..*" Breed : categorizes
+    Species "1" --> "0..*" Pet : classifies
+    Breed "1" --> "0..*" Pet : defines
+    Pet "1" *-- "0..*" Pet_medical_condition : has
+    Pet "1" *-- "0..*" Pet_vaccine : receives
+    Pet "1" *-- "0..*" Pet_activity : performs
+    Pet "1" *-- "0..*" Pet_feeding : follows
+    Pet "1" *-- "0..*" Pet_history : records
+    Medical_condition "1" --> "0..*" Pet_medical_condition : affects
+    Vaccine "1" --> "0..*" Pet_vaccine : protects
+    Activity "1" --> "0..*" Pet_activity : defines
+    Feeding "1" --> "0..*" Pet_feeding : specifies
 
-    %% Service-Repository Dependencies
-    UserService --> UserRepository
-    PetService --> PetRepository
-    MedicalService --> MedicalRepository
-    ActivityService --> ActivityRepository
-    ReportService --> ReportRepository
+    %% Service-Repository Dependencies (Dependency relationships)
+    UserService ..> UserRepository : uses
+    PetService ..> PetRepository : uses
+    MedicalService ..> MedicalRepository : uses
+    ActivityService ..> ActivityRepository : uses
+    ReportService ..> ReportRepository : uses
 
-    %% Frontend-Backend Dependencies
-    Auth --> UserService
-    PetComponent --> PetService
-    PetComponent --> MedicalService
-    PetComponent --> ActivityService
-    Dashboard --> PetComponent
-    Reports --> ReportService
-    Navbar --> PetComponent
+    %% Frontend-Backend Dependencies (Dependency relationships)
+    Auth ..> UserService : calls
+    PetComponent ..> PetService : calls
+    PetComponent ..> MedicalService : calls
+    PetComponent ..> ActivityService : calls
+    Dashboard o-- PetComponent : aggregates
+    Reports ..> ReportService : calls
+    Navbar o-- PetComponent : aggregates
+    App *-- Auth : contains
+    App *-- Navbar : contains
+    App *-- PetComponent : contains
+    App *-- Dashboard : contains
+    App *-- Reports : contains
 
-    %% Schema Usage
-    Auth --> UserCreate
-    Auth --> UserLogin
-    PetComponent --> PetCreate
-    PetComponent --> ActivityCreate
-    PetComponent --> FeedingCreate
-    Reports --> PetHistory
+    %% Schema Usage (Dependency relationships)
+    Auth ..> UserCreate : uses
+    Auth ..> UserLogin : uses
+    Auth ..> UserOut : uses
+    PetComponent ..> PetCreate : uses
+    PetComponent ..> PetOut : uses
+    PetComponent ..> ActivityCreate : uses
+    PetComponent ..> FeedingCreate : uses
+    Reports ..> PetHistory : uses
+    UserService ..> UserCreate : processes
+    UserService ..> UserLogin : validates
+    UserService ..> UserOut : returns
+    PetService ..> PetCreate : processes
+    PetService ..> PetOut : returns
+    ActivityService ..> ActivityCreate : processes
+    ActivityService ..> FeedingCreate : processes
+    ReportService ..> PetHistory : processes
 
-    %% Utility Usage
-    Dashboard --> HealthMetrics
-    Auth --> AuthUtils
+    %% Utility Usage (Dependency relationships)
+    Dashboard ..> HealthMetrics : calculates
+    Auth ..> AuthUtils : authenticates
+    User ..> AuthUtils : validates

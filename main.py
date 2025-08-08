@@ -44,8 +44,15 @@ app.include_router(reports.router)
 
 @app.get("/", response_class=HTMLResponse)
 def serve_index():
-    with open("index.html") as f:
-        return f.read()
+    try:
+        with open("index.html", encoding="utf-8") as f:
+            return f.read()
+    except UnicodeDecodeError:
+        # Fallback para manejar problemas de codificación
+        with open("index.html", encoding="utf-8", errors="replace") as f:
+            return f.read()
+    except FileNotFoundError:
+        return "<h1>Error: index.html not found</h1>"
 
 # Para mantener compatibilidad con las rutas del frontend sin prefijo /api
 @app.get("/species")
