@@ -1,0 +1,3 @@
+Etiqueta,# Muestras,Media,Mín,Máx,Desv. Estándar,% Error,Rendimiento,Kb/sec,Sent KB/sec,Media de Bytes
+Petición HTTP Register,1696,1537,4,3748,936.15,54.776%,276.22150,396.25,40.93,1469.0
+Total,1696,1537,4,3748,936.15,54.776%,276.22150,396.25,40.93,1469.0

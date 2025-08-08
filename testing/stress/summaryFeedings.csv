@@ -1,0 +1,3 @@
+Label,# Samples,Average,Min,Max,Std. Dev.,Error %,Throughput,Received KB/sec,Sent KB/sec,Avg. Bytes
+Petición HTTP Register,1189,3115,77,5984,1723.29,94.365%,188.49081,458.16,1.65,2489.0
+TOTAL,1189,3115,77,5984,1723.29,94.365%,188.49081,458.16,1.65,2489.0
