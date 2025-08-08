@@ -138,7 +138,7 @@
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Configuración del CSV Data Set">
           <stringProp name="delimiter">,</stringProp>
           <stringProp name="fileEncoding"></stringProp>
-          <stringProp name="filename">C:/Users/AMD/Documents/Prueba1/user.csv</stringProp>
+          <stringProp name="filename">${__P(csvFile,user.csv)}</stringProp>
           <boolProp name="ignoreFirstLine">true</boolProp>
           <boolProp name="quotedData">false</boolProp>
           <boolProp name="recycle">true</boolProp>
